@@ -176,18 +176,21 @@ const AdminPerformance = () => {
             backgroundColor: (context) => {
                 const ctx = context.chart.ctx;
                 const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-                gradient.addColorStop(0, 'rgba(79, 70, 229, 0.4)'); // Indigo
-                gradient.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+                gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)'); // Indigo 500
+                gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
                 return gradient;
             },
-            borderColor: '#4F46E5', // Indigo 600
-            borderWidth: 3,
-            tension: 0.4,
+            borderColor: '#6366F1', // Indigo 500
+            borderWidth: 4,
+            tension: 0.3,
             fill: true,
-            pointBackgroundColor: '#fff',
-            pointBorderColor: '#4F46E5',
-            pointRadius: 5,
-            pointHoverRadius: 7
+            pointBackgroundColor: '#FFFFFF',
+            pointBorderColor: '#6366F1',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointHoverBorderWidth: 3,
+            borderCapStyle: 'round'
         }]
     };
 
@@ -201,14 +204,14 @@ const AdminPerformance = () => {
             ],
             backgroundColor: ['#10B981', '#F59E0B', '#EF4444'], // Emerald, Amber, Red
             borderWidth: 0,
-            hoverOffset: 10
+            hoverOffset: 15
         }]
     };
 
     if (loading) return (
         <AdminLayout>
             <div className="flex flex-col items-center justify-center h-[80vh]">
-                <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+                <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
                 <p className="text-slate-500 font-bold tracking-wide animate-pulse">ANALYZING PERFORMANCE DATA...</p>
             </div>
         </AdminLayout>
@@ -226,24 +229,24 @@ const AdminPerformance = () => {
                         </div>
                         <span className="font-bold text-sm uppercase tracking-wide">Back to Roster</span>
                     </button>
-                    {/* <div className="text-[10px] text-slate-300 font-mono">ID: {userId}</div> */}
                 </div>
 
                 {/* HERO CARD */}
-                <div className="bg-white rounded-[2rem] border border-slate-200 shadow-xl overflow-hidden mb-8 relative group">
-                    <div className="absolute top-0 w-full h-32 bg-slate-900 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-900 via-slate-900 to-slate-900 opacity-90"></div>
-                        <div className="absolute -right-10 -top-10 w-64 h-64 bg-indigo-500/30 rounded-full blur-3xl"></div>
-                        <div className="absolute left-10 top-10 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl"></div>
+                <div className="bg-white rounded-[2rem] border border-slate-200 shadow-2xl shadow-indigo-500/10 overflow-hidden mb-8 relative group">
+                    <div className="absolute top-0 w-full h-32 bg-[#0F172A] overflow-hidden">
+                        {/* Matches Sidebar Dark Tone */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-[#1e293b] opacity-100"></div>
+                        <div className="absolute -right-10 -top-10 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl"></div>
+                        <div className="absolute left-10 top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
                     </div>
 
                     <div className="relative px-8 pt-16 pb-8 flex flex-col md:flex-row items-end justify-between gap-6">
                         <div className="flex items-end gap-6">
-                            <div className="w-32 h-32 rounded-3xl bg-white p-2 shadow-2xl relative mb-2">
+                            <div className="w-32 h-32 rounded-3xl bg-white p-2 shadow-xl relative mb-2 ring-4 ring-white/50">
                                 <div className={`w-full h-full bg-gradient-to-br ${tier.color} rounded-2xl flex items-center justify-center text-white text-5xl font-black shadow-inner`}>
-                                    {userProfile?.name ? userProfile.name.charAt(0) : "?"}
+                                    {userProfile?.name ? userProfile.name.charAt(0).toUpperCase() : "?"}
                                 </div>
-                                <div className="absolute -bottom-3 -right-3 w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center border-2 border-slate-50" title={`Tier: ${tier.name}`}>
+                                <div className="absolute -bottom-3 -right-3 w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center border-2 border-slate-50" title={`Tier: ${tier.name}`}>
                                     {tier.name === 'Diamond' && '💎'}
                                     {tier.name === 'Platinum' && '🏆'}
                                     {tier.name === 'Gold' && '🥇'}
@@ -256,8 +259,8 @@ const AdminPerformance = () => {
                                     {userProfile?.name || "Unknown Associate"}
                                 </h1>
                                 <div className="flex items-center gap-3">
-                                    <span className="px-3 py-1 bg-slate-100 rounded-full text-xs font-bold text-slate-500 flex items-center gap-2 border border-slate-200">
-                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                    <span className="px-3 py-1 bg-slate-100 rounded-full text-xs font-bold text-slate-600 flex items-center gap-2 border border-slate-200">
+                                        <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                                         {userProfile?.email || "No Email"}
                                     </span>
                                     <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${tier.bg} ${tier.text} ${tier.border}`}>
@@ -282,61 +285,62 @@ const AdminPerformance = () => {
 
                 {/* KPI CARDS */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all group">
+                    <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-lg shadow-indigo-100/50 hover:shadow-xl hover:shadow-indigo-200/50 transition-all group duration-300">
                         <div className="flex justify-between items-start mb-4">
-                            <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl group-hover:bg-emerald-100 transition-colors">
+                            <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl group-hover:scale-110 transition-transform">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             </div>
                             <span className="px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase rounded-md tracking-wider">Earned</span>
                         </div>
                         <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Total Incentive</p>
-                        <p className="text-3xl font-black text-slate-900 mt-1">₹{(totalIncentiveEarned / 1000).toFixed(1)}k</p>
+                        <p className="text-3xl font-black text-slate-900 mt-1 tracking-tight">₹{(totalIncentiveEarned / 1000).toFixed(1)}k</p>
                     </div>
 
-                    <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all group">
+                    <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-lg shadow-indigo-100/50 hover:shadow-xl hover:shadow-indigo-200/50 transition-all group duration-300">
                         <div className="flex justify-between items-start mb-4">
-                            <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-100 transition-colors">
+                            <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-110 transition-transform">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             </div>
                             <span className="px-2 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold uppercase rounded-md tracking-wider">Efficiency</span>
                         </div>
                         <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Conversion Rate</p>
-                        <p className="text-3xl font-black text-slate-900 mt-1">{approvalRate.toFixed(0)}%</p>
+                        <p className="text-3xl font-black text-slate-900 mt-1 tracking-tight">{approvalRate.toFixed(0)}%</p>
                     </div>
 
-                    <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all group">
+                    <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-lg shadow-indigo-100/50 hover:shadow-xl hover:shadow-indigo-200/50 transition-all group duration-300">
                         <div className="flex justify-between items-start mb-4">
-                            <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl group-hover:bg-purple-100 transition-colors">
+                            <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl group-hover:scale-110 transition-transform">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
                             </div>
-                            <span className="px-2 py-1 bg-purple-50 text-purple-700 text-[10px] font-bold uppercase rounded-md tracking-wider">Quality</span>
+                            <span className="px-2 py-1 bg-purple-50 text-purple-700 text-[10px] font-bold uppercase tracking-wider">Quality</span>
                         </div>
                         <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Avg Deal Size</p>
-                        <p className="text-3xl font-black text-slate-900 mt-1">₹{(averageDealValue / 1000).toFixed(0)}k</p>
+                        <p className="text-3xl font-black text-slate-900 mt-1 tracking-tight">₹{(averageDealValue / 1000).toFixed(0)}k</p>
                     </div>
 
-                    <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all group">
+                    <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-lg shadow-indigo-100/50 hover:shadow-xl hover:shadow-indigo-200/50 transition-all group duration-300">
                         <div className="flex justify-between items-start mb-4">
-                            <div className="p-2.5 bg-amber-50 text-amber-600 rounded-xl group-hover:bg-amber-100 transition-colors">
+                            <div className="p-2.5 bg-amber-50 text-amber-600 rounded-xl group-hover:scale-110 transition-transform">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
                             </div>
                             <span className="px-2 py-1 bg-amber-50 text-amber-700 text-[10px] font-bold uppercase rounded-md tracking-wider">Volume</span>
                         </div>
                         <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Deals Closed</p>
-                        <p className="text-3xl font-black text-slate-900 mt-1">{approvedDeals} <span className="text-xs text-slate-400 font-bold">/ {totalDeals}</span></p>
+                        <p className="text-3xl font-black text-slate-900 mt-1 tracking-tight">{approvedDeals} <span className="text-xs text-slate-400 font-bold">/ {totalDeals}</span></p>
                     </div>
                 </div>
 
                 {/* CHARTS */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    <div className="lg:col-span-2 p-8 bg-white rounded-[2rem] border border-slate-200 shadow-xl">
+                    <div className="lg:col-span-2 p-8 bg-white rounded-[2rem] border border-slate-200 shadow-xl shadow-slate-200/50">
                         <div className="flex justify-between items-center mb-8">
                             <div>
                                 <h3 className="text-lg font-black text-slate-900">Earnings Velocity</h3>
                                 <p className="text-sm text-slate-500 font-medium">6-month incentive performance trend</p>
                             </div>
-                            <div className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold border border-indigo-100">
-                                Live Data
+                            <div className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold border border-slate-200 flex items-center gap-2">
+                                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                                Live Sync
                             </div>
                         </div>
                         <div className="h-72 w-full">
@@ -346,16 +350,38 @@ const AdminPerformance = () => {
                                     responsive: true,
                                     maintainAspectRatio: false,
                                     scales: {
-                                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { weight: 'bold', size: 10 }, color: '#94a3b8' } },
-                                        x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 11 }, color: '#64748b' } }
+                                        y: {
+                                            beginAtZero: true,
+                                            border: { display: false },
+                                            grid: { color: '#F1F5F9', drawBorder: false },
+                                            ticks: { font: { weight: 'bold', size: 10 }, color: '#94a3b8', padding: 10 }
+                                        },
+                                        x: {
+                                            border: { display: false },
+                                            grid: { display: false, drawBorder: false },
+                                            ticks: { font: { weight: 'bold', size: 11 }, color: '#64748b', padding: 10 }
+                                        }
                                     },
-                                    plugins: { legend: { display: false } }
+                                    plugins: {
+                                        legend: { display: false },
+                                        tooltip: {
+                                            backgroundColor: '#1E293B',
+                                            padding: 12,
+                                            titleFont: { size: 13 },
+                                            bodyFont: { size: 13, weight: 'bold' },
+                                            cornerRadius: 8,
+                                            displayColors: false,
+                                            callbacks: {
+                                                label: (context) => ` ₹${context.parsed.y.toLocaleString()}`
+                                            }
+                                        }
+                                    }
                                 }}
                             />
                         </div>
                     </div>
 
-                    <div className="p-8 bg-white rounded-[2rem] border border-slate-200 shadow-xl flex flex-col items-center">
+                    <div className="p-8 bg-white rounded-[2rem] border border-slate-200 shadow-xl shadow-slate-200/50 flex flex-col items-center">
                         <h3 className="text-lg font-black text-slate-900 mb-2">Deal Composition</h3>
                         <p className="text-xs text-slate-400 font-bold uppercase tracking-wide mb-6">Status Breakdown</p>
 
@@ -368,57 +394,60 @@ const AdminPerformance = () => {
                                     plugins: { legend: { display: false } }
                                 }}
                             />
-                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <span className="text-4xl font-black text-slate-900">{totalDeals}</span>
-                                <span className="text-[10px] uppercase font-bold text-slate-400">Total Deals</span>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <span className="text-5xl font-black text-slate-900">{totalDeals}</span>
+                                <span className="text-[10px] uppercase font-bold text-slate-400 mt-1">Total Deals</span>
                             </div>
                         </div>
 
-                        <div className="w-full space-y-2">
-                            <div className="flex justify-between items-center p-2 rounded-lg bg-emerald-50/50">
+                        <div className="w-full space-y-3">
+                            <div className="flex justify-between items-center p-3 rounded-xl bg-emerald-50/50 border border-emerald-100/50">
                                 <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
                                     <span className="text-xs font-bold text-slate-700">Approved</span>
                                 </div>
-                                <span className="text-xs font-black text-emerald-700">{approvedDeals}</span>
+                                <span className="text-sm font-black text-emerald-700">{approvedDeals}</span>
                             </div>
-                            <div className="flex justify-between items-center p-2 rounded-lg bg-amber-50/50">
+                            <div className="flex justify-between items-center p-3 rounded-xl bg-amber-50/50 border border-amber-100/50">
                                 <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50"></span>
                                     <span className="text-xs font-bold text-slate-700">Pending</span>
                                 </div>
-                                <span className="text-xs font-black text-amber-700">{totalDeals - approvedDeals - deals.filter(d => (d.status || "").toLowerCase() === 'rejected').length}</span>
+                                <span className="text-sm font-black text-amber-700">{totalDeals - approvedDeals - deals.filter(d => (d.status || "").toLowerCase() === 'rejected').length}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* LOGS */}
-                <div className="bg-white rounded-[2rem] border border-slate-200 shadow-xl overflow-hidden">
+                <div className="bg-white rounded-[2rem] border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden">
                     <div className="p-8 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div>
                             <h3 className="text-lg font-black text-slate-900">Transaction Ledger</h3>
                             <p className="text-sm text-slate-500 font-medium">Detailed log of all assigned deals</p>
                         </div>
-                        <input
-                            type="text"
-                            placeholder="Search ledger..."
-                            className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-64 transition-all placeholder:text-slate-400"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                        <div className="relative group">
+                            <input
+                                type="text"
+                                placeholder="Search ledger..."
+                                className="pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-64 transition-all placeholder:text-slate-400 group-hover:bg-white"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                            <svg className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        </div>
                     </div>
 
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead className="bg-slate-50 border-b border-slate-100">
                                 <tr>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Client</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Value</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Incentive</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Notes</th>
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Client</th>
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Value</th>
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Incentive</th>
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Notes</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -426,22 +455,22 @@ const AdminPerformance = () => {
                                     <tr><td colSpan="6" className="p-10 text-center text-slate-400 font-bold italic">No entries found</td></tr>
                                 ) : (
                                     filteredDeals.map((deal) => (
-                                        <tr key={deal.id} className="hover:bg-slate-50/50 transition-colors">
-                                            <td className="px-6 py-4 text-xs font-bold text-slate-500 font-mono">
+                                        <tr key={deal.id} className="hover:bg-slate-50/80 transition-colors">
+                                            <td className="px-8 py-5 text-xs font-bold text-slate-500 font-mono">
                                                 {deal.date ? new Date(deal.date).toLocaleDateString() : (deal.createdAt ? new Date(deal.createdAt).toLocaleDateString() : "N/A")}
                                             </td>
-                                            <td className="px-6 py-4 text-sm font-bold text-slate-900">{deal.clientName || "Unknown Client"}</td>
-                                            <td className="px-6 py-4 text-sm font-bold text-slate-600 font-mono">₹{(parseFloat(deal.amount) || 0).toLocaleString()}</td>
-                                            <td className="px-6 py-4 text-sm font-bold text-emerald-600 font-mono">₹{(parseFloat(deal.incentive) || 0).toLocaleString()}</td>
-                                            <td className="px-6 py-4 text-center">
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${(deal.status || "").toLowerCase() === 'approved' ? 'bg-emerald-100 text-emerald-700' :
-                                                    (deal.status || "").toLowerCase() === 'rejected' ? 'bg-red-100 text-red-700' :
-                                                        'bg-amber-100 text-amber-700'
+                                            <td className="px-8 py-5 text-sm font-bold text-slate-900">{deal.clientName || "Unknown Client"}</td>
+                                            <td className="px-8 py-5 text-sm font-bold text-slate-600 font-mono">₹{(parseFloat(deal.amount) || 0).toLocaleString()}</td>
+                                            <td className="px-8 py-5 text-sm font-bold text-emerald-600 font-mono">₹{(parseFloat(deal.incentive) || 0).toLocaleString()}</td>
+                                            <td className="px-8 py-5 text-center">
+                                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${(deal.status || "").toLowerCase() === 'approved' ? 'bg-emerald-100 text-emerald-700' :
+                                                        (deal.status || "").toLowerCase() === 'rejected' ? 'bg-red-100 text-red-700' :
+                                                            'bg-amber-100 text-amber-700'
                                                     }`}>
                                                     {(deal.status || "PENDING").toUpperCase()}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-xs text-slate-400 max-w-xs truncate">{deal.rejectionReason || "-"}</td>
+                                            <td className="px-8 py-5 text-xs text-slate-400 max-w-xs truncate">{deal.rejectionReason || "-"}</td>
                                         </tr>
                                     ))
                                 )}
@@ -449,12 +478,6 @@ const AdminPerformance = () => {
                         </table>
                     </div>
                 </div>
-
-                {/* DEBUG SECTION (Uncomment if needed) */}
-                {/* <div className="mt-8 p-4 bg-gray-100 rounded-xl text-xs font-mono text-gray-600">
-                    <p className="font-bold mb-2">DEBUG INFO:</p>
-                    {debugLog.map((log, i) => <div key={i}>{log}</div>)}
-                </div> */}
             </div>
         </AdminLayout>
     );
