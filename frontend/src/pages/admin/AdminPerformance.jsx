@@ -19,14 +19,14 @@ const AdminPerformance = () => {
 
     const addLog = (msg) => setDebugLog(prev => [...prev, msg]);
 
-    // --- Helper for Date Ranges ---
+    // --- Helper for Date Ranges (Local Time Safe) ---
     const getLast6MonthsLabels = () => {
         const months = [];
         const today = new Date();
         for (let i = 5; i >= 0; i--) {
             const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-            // Format YYYY-MM
-            const monthStr = d.toISOString().slice(0, 7);
+            // Format YYYY-MM using Local Time to avoid UTC shifting
+            const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
             months.push(monthStr);
         }
         return months;
@@ -37,24 +37,17 @@ const AdminPerformance = () => {
             try {
                 addLog(`Starting fetch for userId: ${userId}`);
 
-                // 1. Fetch User Profile (Strategy: Specific -> All -> Deal-embedded)
+                // 1. Fetch User Profile
                 let userObj = { name: "Loading...", email: "..." };
                 try {
                     const uRes = await axios.get(`http://localhost:8080/api/users/${userId}`);
                     userObj = uRes.data;
-                    addLog("User fetched via ID endpoint");
                 } catch (e) {
-                    addLog("User ID endpoint failed, trying list...");
                     try {
                         const allUsers = await axios.get("http://localhost:8080/api/users");
                         const found = allUsers.data.find(u => u.id == userId);
-                        if (found) {
-                            userObj = found;
-                            addLog("User found in list");
-                        }
-                    } catch (e2) {
-                        addLog("User list fetch failed");
-                    }
+                        if (found) userObj = found;
+                    } catch (e2) { }
                 }
                 setUserProfile(userObj);
 
@@ -63,20 +56,16 @@ const AdminPerformance = () => {
                 try {
                     const dealsRes = await axios.get(`http://localhost:8080/deals?userId=${userId}`);
                     allDeals = dealsRes.data || [];
-                    addLog(`Deals fetched via filter: ${allDeals.length}`);
                 } catch (e) {
-                    addLog("Deals filter endpoint failed, fetching all...");
                     const dealsRes = await axios.get(`http://localhost:8080/deals`);
                     allDeals = (dealsRes.data || []).filter(d => d.user?.id == userId || d.userId == userId || (d.user && d.user.id && d.user.id.toString() === userId.toString()));
-                    addLog(`Deals filtered manually: ${allDeals.length}`);
                 }
 
-                // If user name still unknown, try to find in deals
+                // Attempt to recover name from deals if missing
                 if ((!userObj.name || userObj.name === "Loading...") && allDeals.length > 0) {
                     const firstUserDeal = allDeals.find(d => d.user && d.user.name);
                     if (firstUserDeal) {
                         setUserProfile(prev => ({ ...prev, name: firstUserDeal.user.name, email: firstUserDeal.user.email || "" }));
-                        addLog("User name recovered from deal data");
                     }
                 }
 
@@ -100,22 +89,19 @@ const AdminPerformance = () => {
                 monthLabels.forEach(m => trendMap[m] = 0);
 
                 approved.forEach(deal => {
-                    // Try multiple date fields
-                    const rawDate = deal.date || deal.createdAt; // e.g. "2023-10-25" or ISO
+                    const rawDate = deal.date || deal.createdAt;
                     if (rawDate) {
                         try {
                             const d = new Date(rawDate);
                             if (!isNaN(d.getTime())) {
-                                const yyyyMM = d.toISOString().slice(0, 7); // "2023-10"
+                                // Use Local Time for key generation to match labels
+                                const yyyyMM = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
                                 if (trendMap.hasOwnProperty(yyyyMM)) {
                                     trendMap[yyyyMM] += (parseFloat(deal.incentive) || 0);
-                                } else {
-                                    // Handle dates outside 6-month window or slight format mismatch
-                                    // addLog(`Date ${yyyyMM} outside range`);
                                 }
                             }
                         } catch (e) {
-                            addLog(`Date parse error: ${rawDate}`);
+                            // ignore bad dates
                         }
                     }
                 });
@@ -133,7 +119,6 @@ const AdminPerformance = () => {
 
             } catch (err) {
                 console.error("Error fetching performance details:", err);
-                addLog(`CRITICAL ERROR: ${err.message}`);
             } finally {
                 setLoading(false);
             }
@@ -450,8 +435,8 @@ const AdminPerformance = () => {
                                             <td className="px-6 py-4 text-sm font-bold text-emerald-600 font-mono">₹{(parseFloat(deal.incentive) || 0).toLocaleString()}</td>
                                             <td className="px-6 py-4 text-center">
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${(deal.status || "").toLowerCase() === 'approved' ? 'bg-emerald-100 text-emerald-700' :
-                                                        (deal.status || "").toLowerCase() === 'rejected' ? 'bg-red-100 text-red-700' :
-                                                            'bg-amber-100 text-amber-700'
+                                                    (deal.status || "").toLowerCase() === 'rejected' ? 'bg-red-100 text-red-700' :
+                                                        'bg-amber-100 text-amber-700'
                                                     }`}>
                                                     {(deal.status || "PENDING").toUpperCase()}
                                                 </span>
