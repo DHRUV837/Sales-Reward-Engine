@@ -85,6 +85,34 @@ const AdminDealManagement = () => {
                 }
             />
 
+            {/* Summary Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div className="card-modern p-6 text-center">
+                    <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
+                        {deals.length}
+                    </div>
+                    <div className="text-sm text-text-muted mt-1">Total Deals</div>
+                </div>
+                <div className="card-modern p-6 text-center">
+                    <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                        {deals.filter(d => d.status === "ASSIGNED").length}
+                    </div>
+                    <div className="text-sm text-text-muted mt-1">Assigned</div>
+                </div>
+                <div className="card-modern p-6 text-center">
+                    <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                        {deals.filter(d => d.status === "Pending" || d.status === "Submitted").length}
+                    </div>
+                    <div className="text-sm text-text-muted mt-1">Pending Approval</div>
+                </div>
+                <div className="card-modern p-6 text-center">
+                    <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                        {deals.filter(d => d.status === "APPROVED").length}
+                    </div>
+                    <div className="text-sm text-text-muted mt-1">Approved</div>
+                </div>
+            </div>
+
             {/* Filters */}
             <div className="card-modern p-6 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -216,33 +244,7 @@ const AdminDealManagement = () => {
                 )}
             </div>
 
-            {/* Summary Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
-                <div className="card-modern p-6 text-center">
-                    <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
-                        {deals.length}
-                    </div>
-                    <div className="text-sm text-text-muted mt-1">Total Deals</div>
-                </div>
-                <div className="card-modern p-6 text-center">
-                    <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                        {deals.filter(d => d.status === "ASSIGNED").length}
-                    </div>
-                    <div className="text-sm text-text-muted mt-1">Assigned</div>
-                </div>
-                <div className="card-modern p-6 text-center">
-                    <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                        {deals.filter(d => d.status === "Pending" || d.status === "Submitted").length}
-                    </div>
-                    <div className="text-sm text-text-muted mt-1">Pending Approval</div>
-                </div>
-                <div className="card-modern p-6 text-center">
-                    <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                        {deals.filter(d => d.status === "APPROVED").length}
-                    </div>
-                    <div className="text-sm text-text-muted mt-1">Approved</div>
-                </div>
-            </div>
+
         </AdminLayout>
     );
 };
