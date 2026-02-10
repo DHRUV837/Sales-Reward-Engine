@@ -18,17 +18,20 @@ public class AuthController {
         private final org.example.salesincentivesystem.repository.SalesProfileRepository salesProfileRepository;
         private final org.example.salesincentivesystem.repository.UserPreferenceRepository userPreferenceRepository;
         private final org.example.salesincentivesystem.repository.SalesPerformanceRepository salesPerformanceRepository;
+        private final org.example.salesincentivesystem.service.EmailService emailService;
 
         public AuthController(UserRepository userRepository,
                         org.example.salesincentivesystem.repository.AuditLogRepository auditLogRepository,
                         org.example.salesincentivesystem.repository.SalesProfileRepository salesProfileRepository,
                         org.example.salesincentivesystem.repository.UserPreferenceRepository userPreferenceRepository,
-                        org.example.salesincentivesystem.repository.SalesPerformanceRepository salesPerformanceRepository) {
+                        org.example.salesincentivesystem.repository.SalesPerformanceRepository salesPerformanceRepository,
+                        org.example.salesincentivesystem.service.EmailService emailService) {
                 this.userRepository = userRepository;
                 this.auditLogRepository = auditLogRepository;
                 this.salesProfileRepository = salesProfileRepository;
                 this.userPreferenceRepository = userPreferenceRepository;
                 this.salesPerformanceRepository = salesPerformanceRepository;
+                this.emailService = emailService;
         }
 
         @PostMapping("/login")
@@ -142,6 +145,9 @@ public class AuthController {
                 auditLogRepository.save(
                                 new org.example.salesincentivesystem.entity.AuditLog(savedUser.getId(), email,
                                                 "REGISTER_SUCCESS", ipAddress));
+
+                // Send Welcome Email
+                emailService.sendWelcomeEmail(email, name);
 
                 Map<String, Object> response = new java.util.HashMap<>();
                 response.put("token", "dummy-jwt-token-" + savedUser.getId());
