@@ -132,18 +132,20 @@ const LandingPage = () => {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 transition-all group-hover:w-full" />
               </a>
             ))}
-            <button
-              onClick={handleGetStarted}
-              className="px-5 py-2.5 rounded-lg bg-slate-800/50 border border-slate-700/50 hover:bg-slate-800 hover:border-slate-600 text-sm font-medium transition-all shadow-lg hover:shadow-blue-500/10"
-            >
-              {auth?.user ? "Go to Dashboard" : "Sign In"}
-            </button>
-            <button
-              onClick={handleGetStarted}
-              className="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-all shadow-[0_0_20px_-5px_rgba(37,99,235,0.4)] hover:shadow-[0_0_25px_-5px_rgba(37,99,235,0.6)]"
-            >
-              Get Started
-            </button>
+            <div className="flex items-center gap-4 border-l border-slate-800 pl-8">
+              <button
+                onClick={() => navigate('/login')}
+                className="text-sm font-semibold text-slate-300 hover:text-white transition-colors"
+              >
+                Sign In
+              </button>
+              <button
+                onClick={handleGetStarted}
+                className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 ring-1 ring-white/10"
+              >
+                Get Started
+              </button>
+            </div>
           </div>
         </div>
       </motion.nav>
