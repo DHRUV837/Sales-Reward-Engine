@@ -19,7 +19,9 @@ import {
   BarChart3,
   Smartphone,
   CreditCard,
-  Lock
+  Lock,
+  Settings,
+  FileCheck
 } from 'lucide-react';
 
 const LandingPage = () => {
@@ -47,10 +49,50 @@ const LandingPage = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15
+        staggerChildren: 0.2
       }
     }
   };
+
+  // Steps for "How to Use" section
+  const workflowSteps = [
+    {
+      id: 1,
+      title: "Configure Policy",
+      description: "Admins define incentive rules, quotas, and tiers in minutes.",
+      icon: Settings,
+      color: "text-blue-400",
+      bg: "bg-blue-400/10",
+      border: "border-blue-400/20"
+    },
+    {
+      id: 2,
+      title: "Track Sales",
+      description: "Reps close deals that are automatically tracked and verified.",
+      icon: TrendingUp,
+      color: "text-indigo-400",
+      bg: "bg-indigo-400/10",
+      border: "border-indigo-400/20"
+    },
+    {
+      id: 3,
+      title: "Calculate Earnings",
+      description: "Our engine processes commissions instantly with 100% accuracy.",
+      icon: PieChart,
+      color: "text-violet-400",
+      bg: "bg-violet-400/10",
+      border: "border-violet-400/20"
+    },
+    {
+      id: 4,
+      title: "Approve & Payout",
+      description: "Managers approve payouts and reps get paid on time, every time.",
+      icon: CheckCircle2,
+      color: "text-emerald-400",
+      bg: "bg-emerald-400/10",
+      border: "border-emerald-400/20"
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-indigo-500/30 font-sans overflow-x-hidden">
@@ -83,8 +125,8 @@ const LandingPage = () => {
             </span>
           </div>
           <div className="hidden md:flex items-center gap-8">
-            {['Features', 'Integrations', 'Enterprise'].map((item) => (
-              <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-medium text-slate-400 hover:text-white transition-colors relative group">
+            {['How it Works', 'Integrations', 'Pricing'].map((item) => (
+              <a key={item} href={`#${item.replace(/\s+/g, '-').toLowerCase()}`} className="text-sm font-medium text-slate-400 hover:text-white transition-colors relative group">
                 {item}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 transition-all group-hover:w-full" />
               </a>
@@ -163,10 +205,10 @@ const LandingPage = () => {
               </button>
 
               <button
-                onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
                 className="px-8 py-4 bg-slate-900/50 hover:bg-slate-800 text-white rounded-xl font-semibold border border-slate-700 transition-all hover:border-slate-600 block backdrop-blur-sm shadow-lg"
               >
-                Book a Demo
+                How it Works
               </button>
             </motion.div>
           </div>
@@ -224,8 +266,8 @@ const LandingPage = () => {
                   {/* KPI Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[
-                      { l: 'Total Revenue', v: '$1,240,500', c: 'text-emerald-400', g: '+12%' },
-                      { l: 'Commission Payout', v: '$142,300', c: 'text-blue-400', g: '+8%' },
+                      { l: 'Total Revenue', v: '₹1,240,500', c: 'text-emerald-400', g: '+12%' },
+                      { l: 'Commission Payout', v: '₹142,300', c: 'text-blue-400', g: '+8%' },
                       { l: 'Active Deals', v: '328', c: 'text-violet-400', g: '+5%' }
                     ].map((idx, i) => (
                       <div key={i} className="h-32 rounded-xl bg-slate-800/20 border border-slate-700/50 p-5 flex flex-col justify-between hover:border-slate-600 transition-colors cursor-default group/card">
@@ -291,7 +333,7 @@ const LandingPage = () => {
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full border-2 border-indigo-500 bg-slate-900" />
                 <div>
-                  <div className="text-lg font-bold text-white">$14,250.00</div>
+                  <div className="text-lg font-bold text-white">₹14,250.00</div>
                   <div className="text-xs text-emerald-400 flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3" /> Payout Approved
                   </div>
@@ -317,104 +359,72 @@ const LandingPage = () => {
             </div>
           </div>
 
-          {/* Bento Grid Features */}
-          <div id="features" className="mb-32">
-            <div className="text-center max-w-3xl mx-auto mb-20">
+          {/* "HOW IT WORKS" Section (Replaces Features) */}
+          <div id="how-it-works" className="mb-32 max-w-7xl mx-auto px-6">
+            <div className="text-center max-w-3xl mx-auto mb-24">
               <motion.span
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 className="text-blue-400 font-semibold tracking-wide uppercase text-sm mb-4 block"
               >
-                Power & Flexibility
+                Simple Workflow
               </motion.span>
               <motion.h2
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 className="text-4xl md:text-5xl font-bold text-white mb-6"
               >
-                Everything you need to scale.
+                From Policy to Payout in 4 Steps
               </motion.h2>
+              <p className="text-slate-400 text-lg">
+                See how Sales Reward Engine unifies your entire incentive lifecycle.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
-              {/* Large Card Left */}
+            <div className="relative">
+              {/* Connecting Line (Desktop) */}
+              <div className="hidden lg:block absolute top-[120px] left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-blue-500/0 z-0" />
+
               <motion.div
-                whileHover={{ y: -5 }}
-                className="md:col-span-2 rounded-3xl bg-slate-900/40 border border-slate-800 p-8 md:p-12 relative overflow-hidden group"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10"
               >
-                <div className="relative z-10">
-                  <div className="w-12 h-12 rounded-xl bg-blue-600/20 flex items-center justify-center mb-6">
-                    <Layout className="w-6 h-6 text-blue-400" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">Command Center Dashboard</h3>
-                  <p className="text-slate-400 text-lg max-w-md">
-                    Real-time visibility into every deal, commission, and payout. Configure widgets to track what matters most to your organization.
-                  </p>
-                </div>
-                <div className="absolute right-0 bottom-0 w-2/3 h-2/3 bg-slate-800 rounded-tl-3xl border-t border-l border-slate-700/50 transition-transform group-hover:scale-105 group-hover:-translate-x-2 group-hover:-translate-y-2">
-                  <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 p-6">
-                    {/* Abstract UI Lines */}
-                    <div className="space-y-4 opacity-50">
-                      <div className="h-4 bg-slate-600 rounded w-1/2" />
-                      <div className="h-32 bg-slate-700/50 rounded-xl w-full border border-slate-600/30" />
-                      <div className="flex gap-4">
-                        <div className="h-12 w-full bg-slate-700/30 rounded-lg" />
-                        <div className="h-12 w-full bg-slate-700/30 rounded-lg" />
+                {workflowSteps.map((step, index) => (
+                  <motion.div
+                    key={step.id}
+                    variants={fadeInUp}
+                    whileHover={{ y: -10 }}
+                    className="relative group"
+                  >
+                    <div className={`p-8 rounded-2xl bg-slate-900/60 backdrop-blur-sm border ${step.border} hover:bg-slate-800/60 transition-colors h-full flex flex-col items-center text-center shadow-xl`}>
+                      {/* Step Number Badge */}
+                      <div className="absolute top-4 right-4 text-xs font-bold text-slate-600 bg-slate-800 px-2 py-1 rounded-md border border-slate-700">
+                        STEP 0{step.id}
                       </div>
+
+                      <div className={`w-20 h-20 rounded-2xl ${step.bg} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-glow`}>
+                        <step.icon className={`w-10 h-10 ${step.color}`} />
+                      </div>
+
+                      <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
+                      <p className="text-slate-400 text-sm leading-relaxed">
+                        {step.description}
+                      </p>
                     </div>
-                  </div>
-                </div>
-              </motion.div>
 
-              {/* Tall Card Right */}
-              <motion.div
-                whileHover={{ y: -5 }}
-                className="md:row-span-2 rounded-3xl bg-gradient-to-b from-indigo-900/20 to-slate-900/40 border border-slate-800 p-8 relative overflow-hidden group"
-              >
-                <div className="relative z-10">
-                  <div className="w-12 h-12 rounded-xl bg-indigo-600/20 flex items-center justify-center mb-6">
-                    <Smartphone className="w-6 h-6 text-indigo-400" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">Mobile Ready</h3>
-                  <p className="text-slate-400">
-                    Access your earnings and performance data from anywhere. Fully responsive design for the modern sales rep on the go.
-                  </p>
-                </div>
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80%] h-[50%] bg-slate-950 border-t border-x border-slate-700 rounded-t-[30px] shadow-2xl group-hover:h-[55%] transition-all">
-                  <div className="w-full h-full pt-8 px-4">
-                    <div className="w-12 h-1 bg-slate-800 rounded-full mx-auto mb-6" />
-                    <div className="space-y-4">
-                      <div className="h-16 w-full bg-slate-900 rounded-2xl border border-slate-800" />
-                      <div className="h-16 w-full bg-slate-900 rounded-2xl border border-slate-800" />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Small Card 1 */}
-              <motion.div
-                whileHover={{ y: -5 }}
-                className="rounded-3xl bg-slate-900/40 border border-slate-800 p-8 group hover:bg-slate-800/40 transition-colors"
-              >
-                <PieChart className="w-8 h-8 text-emerald-400 mb-4" />
-                <h3 className="text-xl font-bold text-white mb-2">Analytics</h3>
-                <p className="text-slate-400 text-sm">Deep dive into revenue trends and rep performance.</p>
-              </motion.div>
-
-              {/* Small Card 2 */}
-              <motion.div
-                whileHover={{ y: -5 }}
-                className="rounded-3xl bg-slate-900/40 border border-slate-800 p-8 group hover:bg-slate-800/40 transition-colors"
-              >
-                <Shield className="w-8 h-8 text-amber-400 mb-4" />
-                <h3 className="text-xl font-bold text-white mb-2">Security</h3>
-                <p className="text-slate-400 text-sm">Enterprise-grade encryption and role-based access.</p>
+                    {/* Connection Dot (Desktop) */}
+                    <div className="hidden lg:block absolute left-1/2 -top-[21px] -translate-x-1/2 w-4 h-4 bg-[#020617] border-2 border-slate-700 rounded-full z-20 group-hover:border-blue-500 group-hover:scale-125 transition-all" />
+                  </motion.div>
+                ))}
               </motion.div>
             </div>
           </div>
 
           {/* Integration List (More Density) */}
-          <div className="py-20 bg-slate-900/20 border-y border-slate-800/30 mb-32">
+          <div className="py-20 bg-slate-900/20 border-y border-slate-800/30 mb-32" id="integrations">
             <div className="max-w-7xl mx-auto px-6 text-center">
               <h3 className="text-2xl font-bold text-white mb-12">Seamlessly Integrates with Your Stack</h3>
               <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
