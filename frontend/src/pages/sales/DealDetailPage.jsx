@@ -18,7 +18,8 @@ const DealDetailPage = () => {
 
     const fetchDealDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/deals`);
+            const userId = JSON.parse(localStorage.getItem("auth"))?.user?.id || JSON.parse(localStorage.getItem("auth"))?.id;
+            const response = await axios.get(`http://localhost:8080/api/deals?userId=${userId}`);
             const foundDeal = response.data.find(d => d.id.toString() === id);
             if (foundDeal) {
                 setDeal(foundDeal);
