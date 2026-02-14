@@ -41,7 +41,11 @@ public class SalesPerformanceController {
                         return ResponseEntity.notFound().build();
 
                     SalesPerformance defaultPerf = new SalesPerformance(user, 100000.0, 0.0, "");
-                    return ResponseEntity.ok(performanceRepository.save(defaultPerf));
+                    try {
+                        return ResponseEntity.ok(performanceRepository.save(defaultPerf));
+                    } catch (Exception e) {
+                        return ResponseEntity.internalServerError().build();
+                    }
                 });
     }
 

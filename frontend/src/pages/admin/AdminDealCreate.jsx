@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import api from "../../api";
 import AdminLayout from "../../layouts/AdminLayout";
 import PageHeader from "../../components/common/PageHeader";
-import { useNavigate } from "react-router-dom";
 
 const AdminDealCreate = () => {
     const navigate = useNavigate();
@@ -38,31 +39,20 @@ const AdminDealCreate = () => {
             const response = await api.get("/api/users", {
                 params: { currentUserId: userId }
             });
-            console.log("All users:", response.data); // Debug
             const sales = response.data.filter(u => u.role === "SALES" && u.accountStatus === "ACTIVE");
-            console.log("Filtered sales users:", sales); // Debug
             setSalesUsers(sales);
-
-            if (sales.length === 0) {
-                console.warn("No active sales users found!");
-            }
         } catch (error) {
             console.error("Error fetching sales users:", error);
-            alert("⚠️ Could not load sales executives. Please refresh and try again.");
         }
     };
 
     const fetchPolicies = async () => {
         try {
-            // Fetch INCENTIVE policies, not company policies
             const response = await api.get("/api/policy?type=INCENTIVE");
-            console.log("Incentive Policies:", response.data); // Debug
             const activePolicies = response.data.filter(p => p.active);
             setPolicies(activePolicies);
-            console.log("Active incentive policies:", activePolicies.length);
         } catch (error) {
             console.error("Error fetching incentive policies:", error);
-            // Policies are optional, so don't alert for this
         }
     };
 
@@ -78,9 +68,9 @@ const AdminDealCreate = () => {
         setLoading(true);
 
         try {
-            await api.post("/admin/deals", formData);
+            await api.post("/api/admin/deals", formData);
 
-            // Onboarding Progress: Mark 'First Deal' as complete
+            // Onboarding Progress update
             try {
                 const userId = localStorage.getItem("userId");
                 if (userId) {
@@ -93,21 +83,10 @@ const AdminDealCreate = () => {
                 console.error("Failed to update onboarding progress", err);
             }
 
-            alert("✅ Deal created and assigned successfully!");
             navigate("/admin/deals");
         } catch (error) {
             console.error("Error creating deal:", error);
-            let errorMessage = "Unknown error";
-            if (error.response?.data) {
-                if (typeof error.response.data === 'string') {
-                    errorMessage = error.response.data;
-                } else if (typeof error.response.data === 'object') {
-                    errorMessage = error.response.data.message || error.response.data.error || JSON.stringify(error.response.data);
-                }
-            } else {
-                errorMessage = error.message;
-            }
-            alert("❌ Failed to create deal: " + errorMessage);
+            alert("❌ Failed to create deal: " + (error.response?.data?.message || error.message));
         } finally {
             setLoading(false);
         }
@@ -116,303 +95,284 @@ const AdminDealCreate = () => {
     return (
         <AdminLayout>
             <PageHeader
-                heading="Deal Origination"
-                subtitle="Initiate and configure new commercial opportunities for approval workflows."
+                heading="Deal Configuration"
+                subtitle="Formalize new commercial mandates and establish baseline performance parameters."
             />
 
-            <div className="max-w-3xl mx-auto">
-                <form onSubmit={handleSubmit} className="card-modern p-8 space-y-6">
-                    <div className="border-b border-border-subtle pb-2 mb-4">
-                        <h3 className="text-lg font-bold text-text-primary">1. Deal Details</h3>
-                    </div>
-                    {/* Deal Name */}
-                    <div>
-                        <label className="block text-sm font-medium text-text-primary mb-2">
-                            Deal Name *
-                        </label>
-                        <input
-                            type="text"
-                            name="dealName"
-                            value={formData.dealName}
-                            onChange={handleChange}
-                            required
-                            placeholder="e.g., Flipkart Q1 Expansion"
-                            className="input-field"
-                        />
-                    </div>
-
-                    {/* Organization Name */}
-                    <div>
-                        <label className="block text-sm font-medium text-text-primary mb-2">
-                            Organization Name *
-                        </label>
-                        <input
-                            type="text"
-                            name="organizationName"
-                            value={formData.organizationName}
-                            onChange={handleChange}
-                            required
-                            placeholder="e.g., Flipkart"
-                            className="input-field"
-                        />
-                    </div>
-
-                    {/* Client Name */}
-                    <div>
-                        <label className="block text-sm font-medium text-text-primary mb-2">
-                            Client Contact Name *
-                        </label>
-                        <input
-                            type="text"
-                            name="clientName"
-                            value={formData.clientName}
-                            onChange={handleChange}
-                            required
-                            placeholder="e.g., Sachin Bansal"
-                            className="input-field"
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Industry */}
-                        <div>
-                            <label className="block text-sm font-medium text-text-primary mb-2">
-                                Industry *
-                            </label>
-                            <select
-                                name="industry"
-                                value={formData.industry}
-                                onChange={handleChange}
-                                required
-                                className="input-field"
-                            >
-                                <option value="Financial Services">Financial Services</option>
-                                <option value="Technology">Technology</option>
-                                <option value="Healthcare">Healthcare</option>
-                                <option value="Retail">Retail</option>
-                                <option value="Manufacturing">Manufacturing</option>
-                                <option value="Other">Other</option>
-                            </select>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-4xl mx-auto pb-20"
+            >
+                <form onSubmit={handleSubmit} className="space-y-8">
+                    {/* section 1: Core Metadata */}
+                    <div className="glass-panel p-8 rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-white dark:bg-white/5 shadow-xl">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="p-3 rounded-2xl bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400">
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Core Metadata</h3>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Identify organizational entity and mandate</p>
+                            </div>
                         </div>
 
-                        {/* Region */}
-                        <div>
-                            <label className="block text-sm font-medium text-text-primary mb-2">
-                                Region *
-                            </label>
-                            <select
-                                name="region"
-                                value={formData.region}
-                                onChange={handleChange}
-                                required
-                                className="input-field"
-                            >
-                                <option value="APAC">APAC</option>
-                                <option value="EMEA">EMEA</option>
-                                <option value="NORTH_AMERICA">North America</option>
-                                <option value="LATAM">LATAM</option>
-                            </select>
-                        </div>
-
-                        {/* Currency */}
-                        <div>
-                            <label className="block text-sm font-medium text-text-primary mb-2">
-                                Currency *
-                            </label>
-                            <select
-                                name="currency"
-                                value={formData.currency}
-                                onChange={handleChange}
-                                required
-                                className="input-field"
-                            >
-                                <option value="₹">INR (₹)</option>
-                                <option value="$">USD ($)</option>
-                                <option value="€">EUR (€)</option>
-                                <option value="£">GBP (£)</option>
-                            </select>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Mandate Name</label>
+                                <input
+                                    type="text"
+                                    name="dealName"
+                                    value={formData.dealName}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="e.g., Enterprise Cloud Expansion"
+                                    className="input-field bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Parent Organization</label>
+                                <input
+                                    type="text"
+                                    name="organizationName"
+                                    value={formData.organizationName}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="e.g., Global Tech Corp"
+                                    className="input-field bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Commercial Contact</label>
+                                <input
+                                    type="text"
+                                    name="clientName"
+                                    value={formData.clientName}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Primary stakeholder name"
+                                    className="input-field bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Industry</label>
+                                    <select
+                                        name="industry"
+                                        value={formData.industry}
+                                        onChange={handleChange}
+                                        required
+                                        className="input-field bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 font-bold"
+                                    >
+                                        <option value="Financial Services">Finance</option>
+                                        <option value="Technology">Tech</option>
+                                        <option value="Healthcare">Health</option>
+                                        <option value="Retail">Retail</option>
+                                        <option value="Manufacturing">Fab</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Region</label>
+                                    <select
+                                        name="region"
+                                        value={formData.region}
+                                        onChange={handleChange}
+                                        required
+                                        className="input-field bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 font-bold"
+                                    >
+                                        <option value="APAC">APAC</option>
+                                        <option value="EMEA">EMEA</option>
+                                        <option value="NORTH_AMERICA">NAM</option>
+                                        <option value="LATAM">LATAM</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Deal Value */}
-                    <div>
-                        <label className="block text-sm font-medium text-text-primary mb-2">
-                            Deal Value (₹) *
-                        </label>
-                        <input
-                            type="number"
-                            name="amount"
-                            value={formData.amount}
-                            onChange={handleChange}
-                            required
-                            min="1"
-                            placeholder="e.g., 500000"
-                            className="input-field"
-                        />
-                    </div>
-
-                    {/* Deal Type */}
-                    <div>
-                        <label className="block text-sm font-medium text-text-primary mb-2">
-                            Deal Type *
-                        </label>
-                        <select
-                            name="dealType"
-                            value={formData.dealType}
-                            onChange={handleChange}
-                            required
-                            className="input-field"
-                        >
-                            <option value="NEW">New Business</option>
-                            <option value="RENEWAL">Renewal</option>
-                            <option value="UPSELL">Upsell</option>
-                            <option value="CROSS_SELL">Cross-sell</option>
-                        </select>
-                        <p className="mt-2 text-sm text-text-muted">
-                            💡 Deal type affects incentive calculation. New deals may have different rates than renewals.
-                        </p>
-                    </div>
-
-                    {/* Assign to Sales Executive */}
-                    <div className="pt-4 border-t border-border-subtle mt-6">
-                        <div className="border-b border-border-subtle pb-2 mb-4">
-                            <h3 className="text-lg font-bold text-text-primary">2. Assignment & Priority</h3>
+                    {/* section 2: Commercial Values */}
+                    <div className="glass-panel p-8 rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-white dark:bg-white/5 shadow-xl">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3 1.343 3 3-1.343 3-3 3m0-12c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2zm0 12c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Financial Parameters</h3>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Commitment value and deal structure</p>
+                            </div>
                         </div>
-                        <label className="block text-sm font-medium text-text-primary mb-2">
-                            Assign to Sales Executive *
-                            {salesUsers.length > 0 && (
-                                <span className="ml-2 text-xs text-text-muted">
-                                    ({salesUsers.length} available)
-                                </span>
-                            )}
-                        </label>
-                        <select
-                            name="assignedUserId"
-                            value={formData.assignedUserId}
-                            onChange={handleChange}
-                            required
-                            className="input-field"
-                        >
-                            <option value="">
-                                {salesUsers.length === 0
-                                    ? "Loading sales executives..."
-                                    : "-- Select Sales Executive --"}
-                            </option>
-                            {salesUsers.map(user => (
-                                <option key={user.id} value={user.id}>
-                                    {user.name} ({user.email})
-                                </option>
-                            ))}
-                        </select>
-                        {salesUsers.length === 0 && (
-                            <p className="mt-2 text-sm text-yellow-600 dark:text-yellow-400">
-                                ⚠️ No active sales executives found. Please create users with SALES role first.
-                            </p>
-                        )}
-                    </div>
 
-                    {/* Expected Close Date */}
-                    <div>
-                        <label className="block text-sm font-medium text-text-primary mb-2">
-                            Expected Close Date *
-                        </label>
-                        <input
-                            type="date"
-                            name="expectedCloseDate"
-                            value={formData.expectedCloseDate}
-                            onChange={handleChange}
-                            required
-                            className="input-field"
-                        />
-                    </div>
-
-                    {/* Priority */}
-                    <div>
-                        <label className="block text-sm font-medium text-text-primary mb-2">
-                            Priority *
-                        </label>
-                        <select
-                            name="priority"
-                            value={formData.priority}
-                            onChange={handleChange}
-                            required
-                            className="input-field"
-                        >
-                            <option value="LOW">Low</option>
-                            <option value="MEDIUM">Medium</option>
-                            <option value="HIGH">High</option>
-                        </select>
-                    </div>
-
-                    {/* Incentive Policy */}
-                    <div className="pt-4 border-t border-border-subtle mt-6">
-                        <div className="border-b border-border-subtle pb-2 mb-4">
-                            <h3 className="text-lg font-bold text-text-primary">3. Incentive Rules</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Mandate Value (Total Contract Value)</label>
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none font-bold text-slate-400 group-focus-within:text-emerald-500 transition-colors">
+                                        {formData.currency}
+                                    </div>
+                                    <input
+                                        type="number"
+                                        name="amount"
+                                        value={formData.amount}
+                                        onChange={handleChange}
+                                        required
+                                        min="1"
+                                        placeholder="0.00"
+                                        className="input-field pl-12 bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 font-black text-lg"
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Currency</label>
+                                    <select
+                                        name="currency"
+                                        value={formData.currency}
+                                        onChange={handleChange}
+                                        required
+                                        className="input-field bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 font-bold"
+                                    >
+                                        <option value="₹">INR (₹)</option>
+                                        <option value="$">USD ($)</option>
+                                        <option value="€">EUR (€)</option>
+                                        <option value="£">GBP (£)</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Deal Protocol</label>
+                                    <select
+                                        name="dealType"
+                                        value={formData.dealType}
+                                        onChange={handleChange}
+                                        required
+                                        className="input-field bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 font-bold"
+                                    >
+                                        <option value="NEW">New Ops</option>
+                                        <option value="RENEWAL">Renewal</option>
+                                        <option value="UPSELL">Upsell</option>
+                                        <option value="CROSS_SELL">Cross</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                        <label className="block text-sm font-medium text-text-primary mb-2">
-                            Incentive Policy
-                            {policies.length > 0 && (
-                                <span className="ml-2 text-xs text-text-muted">
-                                    ({policies.length} active policies)
-                                </span>
-                            )}
-                        </label>
-                        <select
-                            name="policyId"
-                            value={formData.policyId}
-                            onChange={handleChange}
-                            className="input-field"
-                        >
-                            <option value="">
-                                {policies.length === 0
-                                    ? "No policies available (Optional)"
-                                    : "-- Select Policy (Optional) --"}
-                            </option>
-                            {policies.map(policy => (
-                                <option key={policy.id} value={policy.id}>
-                                    {policy.title}
-                                </option>
-                            ))}
-                        </select>
-                        <p className="mt-2 text-sm text-text-muted">
-                            💡 Policy determines the incentive calculation rules for this deal. If not selected, default rates will apply.
-                        </p>
                     </div>
 
-                    {/* Deal Notes */}
-                    <div>
-                        <label className="block text-sm font-medium text-text-primary mb-2">
-                            Internal Notes (Optional)
-                        </label>
-                        <textarea
-                            name="dealNotes"
-                            value={formData.dealNotes}
-                            onChange={handleChange}
-                            rows="4"
-                            placeholder="Add any internal notes or comments..."
-                            className="input-field"
-                        />
+                    {/* section 3: Execution & Logic */}
+                    <div className="glass-panel p-8 rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-white dark:bg-white/5 shadow-xl">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Assignment Matrix</h3>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Ownership and regulatory alignment</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Responsible Executive</label>
+                                <select
+                                    name="assignedUserId"
+                                    value={formData.assignedUserId}
+                                    onChange={handleChange}
+                                    required
+                                    className="input-field bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 font-bold"
+                                >
+                                    <option value="">{salesUsers.length === 0 ? "Scanning Network..." : "Select Execution Lead"}</option>
+                                    {salesUsers.map(user => (
+                                        <option key={user.id} value={user.id}>{user.name} ({user.email})</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Target Finality</label>
+                                    <input
+                                        type="date"
+                                        name="expectedCloseDate"
+                                        value={formData.expectedCloseDate}
+                                        onChange={handleChange}
+                                        required
+                                        className="input-field bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 font-bold"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Impact Tier</label>
+                                    <select
+                                        name="priority"
+                                        value={formData.priority}
+                                        onChange={handleChange}
+                                        required
+                                        className="input-field bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 font-bold"
+                                    >
+                                        <option value="LOW">Low Impact</option>
+                                        <option value="MEDIUM">Standard</option>
+                                        <option value="HIGH">High Criticality</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Governing Policy (Optional)</label>
+                                <select
+                                    name="policyId"
+                                    value={formData.policyId}
+                                    onChange={handleChange}
+                                    className="input-field bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 font-bold"
+                                >
+                                    <option value="">{policies.length === 0 ? "No active policies found" : "Inherit Global Ruleset"}</option>
+                                    {policies.map(policy => (
+                                        <option key={policy.id} value={policy.id}>{policy.title}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Internal Mandate Notes</label>
+                                <textarea
+                                    name="dealNotes"
+                                    value={formData.dealNotes}
+                                    onChange={handleChange}
+                                    rows="1"
+                                    placeholder="Strategic observations..."
+                                    className="input-field bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10"
+                                />
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex gap-4 pt-4">
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="btn-primary flex-1"
-                        >
-                            {loading ? "Creating..." : "✅ Create & Assign Deal"}
-                        </button>
+                    <div className="flex gap-4 pt-6">
                         <button
                             type="button"
                             onClick={() => navigate("/admin/deals")}
-                            className="btn-secondary"
+                            className="btn-secondary px-8 rounded-2xl font-black text-xs uppercase tracking-widest border-2"
                         >
-                            Cancel
+                            Abort
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="btn-primary flex-1 py-4 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-primary-500/20 group relative overflow-hidden"
+                        >
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                {loading ? "Authorizing..." : (
+                                    <>
+                                        Authorize & Deploy Mandate
+                                        <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                    </>
+                                )}
+                            </span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
                         </button>
                     </div>
                 </form>
-            </div>
+            </motion.div>
         </AdminLayout>
     );
 };

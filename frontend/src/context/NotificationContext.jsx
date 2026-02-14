@@ -16,7 +16,7 @@ export const NotificationProvider = ({ children }) => {
     const fetchNotifications = () => {
       if (userId) {
         console.log("Fetching notifications for userId:", userId);
-        axios.get(`${API_URL}/notifications?userId=${userId}`)
+        api.get(`/notifications?userId=${userId}`)
           .then(res => {
             setNotifications(res.data);
           })
@@ -62,7 +62,7 @@ export const NotificationProvider = ({ children }) => {
 
         // If user marked it read locally while request was in-flight, sync that to backend
         if (isReadLocally) {
-          axios.patch(`${API_URL}/notifications/${realNotification.id}/read`).catch(e => console.error("Sync read failed", e));
+          api.patch(`/notifications/${realNotification.id}/read`).catch(e => console.error("Sync read failed", e));
         }
 
         return prev.map(n =>
@@ -96,7 +96,7 @@ export const NotificationProvider = ({ children }) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
     try {
       if (id > 1700000000000) return; // Skip temp IDs if not synonymous
-      await axios.delete(`${API_URL}/notifications/${id}`);
+      await api.delete(`/notifications/${id}`);
     } catch (err) {
       console.error("Delete notification failed", err);
     }
@@ -115,7 +115,7 @@ export const NotificationProvider = ({ children }) => {
       // The issue is if the backend ID *becomes* available later.
       // For now, let's just send it. If it 404s, it defaults to "ignore".
       // But we can slightly optimize:
-      await axios.patch(`${API_URL}/notifications/${id}/read`);
+      await api.patch(`/notifications/${id}/read`);
     } catch (err) { console.error("Mark read failed", err); }
   }, []);
 
@@ -123,7 +123,7 @@ export const NotificationProvider = ({ children }) => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     try {
       if (userId) {
-        await axios.patch(`${API_URL}/notifications/read-all?userId=${userId}`);
+        await api.patch(`/notifications/read-all?userId=${userId}`);
       }
     } catch (err) {
       console.error("Mark all read failed", err);
@@ -134,7 +134,7 @@ export const NotificationProvider = ({ children }) => {
     setNotifications([]);
     try {
       if (userId) {
-        await axios.delete(`${API_URL}/notifications?userId=${userId}`);
+        await api.delete(`/notifications?userId=${userId}`);
       }
     } catch (err) {
       console.error("Clear all notifications failed", err);

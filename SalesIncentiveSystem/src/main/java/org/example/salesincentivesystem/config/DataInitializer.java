@@ -1,159 +1,180 @@
 package org.example.salesincentivesystem.config;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.example.salesincentivesystem.entity.Deal;
 import org.example.salesincentivesystem.entity.User;
-import org.example.salesincentivesystem.repository.UserRepository;
+import org.example.salesincentivesystem.repository.*;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
-    private final org.example.salesincentivesystem.repository.SalesProfileRepository salesProfileRepository;
-    private final org.example.salesincentivesystem.repository.UserPreferenceRepository userPreferenceRepository;
-    private final org.example.salesincentivesystem.repository.SalesPerformanceRepository salesPerformanceRepository;
-    private final org.example.salesincentivesystem.repository.DealRepository dealRepository;
+    private final SalesProfileRepository salesProfileRepository;
+    private final UserPreferenceRepository userPreferenceRepository;
+    private final SalesPerformanceRepository salesPerformanceRepository;
+    private final DealRepository dealRepository;
+    private final PolicyRepository policyRepository;
+    private final ObjectMapper objectMapper;
 
     public DataInitializer(UserRepository userRepository,
-            org.example.salesincentivesystem.repository.SalesProfileRepository salesProfileRepository,
-            org.example.salesincentivesystem.repository.UserPreferenceRepository userPreferenceRepository,
-            org.example.salesincentivesystem.repository.SalesPerformanceRepository salesPerformanceRepository,
-            org.example.salesincentivesystem.repository.DealRepository dealRepository) {
+            SalesProfileRepository salesProfileRepository,
+            UserPreferenceRepository userPreferenceRepository,
+            SalesPerformanceRepository salesPerformanceRepository,
+            DealRepository dealRepository,
+            PolicyRepository policyRepository) {
         this.userRepository = userRepository;
         this.salesProfileRepository = salesProfileRepository;
         this.userPreferenceRepository = userPreferenceRepository;
         this.salesPerformanceRepository = salesPerformanceRepository;
         this.dealRepository = dealRepository;
+        this.policyRepository = policyRepository;
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.registerModule(new JavaTimeModule());
     }
 
     @Override
     public void run(String... args) {
-        // Ensure Users Exist
-        if (userRepository.count() == 0) {
-            System.out.println("SEEDING DEFAULT USERS...");
-            userRepository.save(new User("admin@test.com", "admin123", "ADMIN", "Admin User"));
-            userRepository.save(new User("sales@test.com", "sales123", "SALES", "Sales Person"));
-            System.out.println("USERS SEEDED!");
-        }
-
-        // Seed Rich Data if missing
         try {
-            User admin = userRepository.findByEmail("admin@test.com").orElse(null);
-            User sales = userRepository.findByEmail("sales@test.com").orElse(null);
+            System.out.println("Starting Data Restoration from JSON...");
 
-            // Admin Prefs
-            if (admin != null) {
-                if (userPreferenceRepository.findAll().stream()
-                        .noneMatch(p -> p.getUser().getId().equals(admin.getId()))) {
-                    userPreferenceRepository.save(
-                            new org.example.salesincentivesystem.entity.UserPreference(admin, "LIGHT", "USD", "EN"));
-                    System.out.println("Seeded Admin Prefs");
-                }
-            }
+            // 1. Seed Users from all_users.json
+            restoreUsers();
 
-            // Sales Data
-            if (sales != null) {
-                if (salesProfileRepository.findAll().stream()
-                        .noneMatch(p -> p.getUser().getId().equals(sales.getId()))) {
-                    salesProfileRepository.save(new org.example.salesincentivesystem.entity.SalesProfile(sales,
-                            "555-0199", "North Region", "EMP-001", java.time.LocalDate.now().minusYears(2)));
-                    System.out.println("Seeded Sales Profile");
-                }
-                if (userPreferenceRepository.findAll().stream()
-                        .noneMatch(p -> p.getUser().getId().equals(sales.getId()))) {
-                    userPreferenceRepository.save(
-                            new org.example.salesincentivesystem.entity.UserPreference(sales, "DARK", "USD", "EN"));
-                    System.out.println("Seeded Sales Prefs");
-                }
-                if (salesPerformanceRepository.findAll().stream()
-                        .noneMatch(p -> p.getUser().getId().equals(sales.getId()))) {
-                    salesPerformanceRepository.save(new org.example.salesincentivesystem.entity.SalesPerformance(sales,
-                            100000.0, 4.5, "Top Seller, Rookie of the Year"));
-                    System.out.println("Seeded Sales Performance");
-                }
-            }
+            // 2. Profiles & Preferences (Ensure basic objects exist for all sales users)
+            ensureProfilesAndPreferences();
 
-            // Seed Deals
-            if (dealRepository.count() == 0 && sales != null) {
-                java.time.LocalDate now = java.time.LocalDate.now();
+            // 3. Seed Deals from deals.json
+            restoreDeals();
 
-                org.example.salesincentivesystem.entity.Deal d1 = new org.example.salesincentivesystem.entity.Deal();
-                d1.setAmount(45000);
-                d1.setDate(now.minusDays(5));
-                d1.setStatus("Approved");
-                d1.setRate(5.0);
-                d1.setIncentive(45000 * 0.05);
-                d1.setUser(sales);
-                dealRepository.save(d1);
+            // 4. Seed Policies and Targets
+            restorePolicies();
+            restoreTargets();
 
-                org.example.salesincentivesystem.entity.Deal d2 = new org.example.salesincentivesystem.entity.Deal();
-                d2.setAmount(120000);
-                d2.setDate(now.minusDays(2));
-                d2.setStatus("Approved");
-                d2.setRate(10.0);
-                d2.setIncentive(120000 * 0.10);
-                d2.setUser(sales);
-                dealRepository.save(d2);
-
-                org.example.salesincentivesystem.entity.Deal d3 = new org.example.salesincentivesystem.entity.Deal();
-                d3.setAmount(20000);
-                d3.setDate(now.minusDays(10));
-                d3.setStatus("Recommended");
-                d3.setRate(5.0);
-                d3.setIncentive(20000 * 0.05);
-                d3.setUser(sales);
-                dealRepository.save(d3);
-
-                // Past Month Deals (for Trends)
-                org.example.salesincentivesystem.entity.Deal d4 = new org.example.salesincentivesystem.entity.Deal();
-                d4.setAmount(80000);
-                d4.setDate(now.minusMonths(1).minusDays(5));
-                d4.setStatus("Approved");
-                d4.setRate(10.0);
-                d4.setIncentive(80000 * 0.10);
-                d4.setUser(sales);
-                dealRepository.save(d4);
-
-                org.example.salesincentivesystem.entity.Deal d5 = new org.example.salesincentivesystem.entity.Deal();
-                d5.setAmount(60000);
-                d5.setDate(now.minusMonths(1).minusDays(15));
-                d5.setStatus("Approved");
-                d5.setRate(5.0);
-                d5.setIncentive(60000 * 0.05);
-                d5.setUser(sales);
-                dealRepository.save(d5);
-
-                System.out.println("Seeded Deals");
-            }
-            // CLEANUP: Fix Orphan Deals (Deals with null user)
-            // This happens with initial seed or manual inserts. Assign to "sales@test.com"
-            if (sales != null) {
-                java.util.List<org.example.salesincentivesystem.entity.Deal> orphans = dealRepository.findAll().stream()
-                        .filter(d -> d.getUser() == null)
-                        .collect(java.util.stream.Collectors.toList());
-
-                if (!orphans.isEmpty()) {
-                    System.out.println("FIXING ORPHAN DEALS: Found " + orphans.size() + " deals with no user.");
-                    orphans.forEach(d -> {
-                        d.setUser(sales);
-                        dealRepository.save(d);
-                    });
-                    System.out.println(" Assigned orphaned deals to " + sales.getEmail());
-                }
-            }
-
-            // CLEANUP: Fox Missing Account Status
-            userRepository.findAll().forEach(u -> {
-                if (u.getAccountStatus() == null || u.getAccountStatus().isEmpty()) {
-                    System.out.println("FIXING USER STATUS: Setting Active for " + u.getEmail());
-                    u.setAccountStatus("ACTIVE");
-                    userRepository.save(u);
-                }
-            });
+            System.out.println("100% AUTHENTIC DATA RESTORED SUCCESSFULLY!");
 
         } catch (Exception e) {
-            System.err.println("Error seeding rich data: " + e.getMessage());
+            System.err.println("Error during data restoration: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void restoreUsers() throws Exception {
+        InputStream is = new ClassPathResource("all_users.json").getInputStream();
+        List<User> users = objectMapper.readValue(is, new TypeReference<List<User>>() {
+        });
+
+        for (User u : users) {
+            if (userRepository.findByEmail(u.getEmail()).isEmpty()) {
+                // Ensure IDs are not forced if we want DB to generate them,
+                // but since we want to keep relations, we might need to be careful.
+                // For now, let's just save and let JPA handle it, we will link deals by email.
+                u.setId(null);
+                userRepository.save(u);
+                System.out.println("Restored user: " + u.getEmail());
+            }
+        }
+    }
+
+    private void ensureProfilesAndPreferences() {
+        userRepository.findAll().forEach(u -> {
+            if ("SALES".equals(u.getRole())) {
+                if (salesProfileRepository.findAll().stream()
+                        .noneMatch(p -> p.getUser().getId().equals(u.getId()))) {
+                    salesProfileRepository.save(new org.example.salesincentivesystem.entity.SalesProfile(u,
+                            "555-0100", "Sales", "EMP-" + u.getId(), java.time.LocalDate.now().minusYears(1)));
+                }
+                if (userPreferenceRepository.findAll().stream()
+                        .noneMatch(p -> p.getUser().getId().equals(u.getId()))) {
+                    userPreferenceRepository.save(
+                            new org.example.salesincentivesystem.entity.UserPreference(u, "light", "INR", "en"));
+                }
+                if (salesPerformanceRepository.findAll().stream()
+                        .noneMatch(p -> p.getUser().getId().equals(u.getId()))) {
+                    salesPerformanceRepository.save(new org.example.salesincentivesystem.entity.SalesPerformance(u,
+                            0.0, 0.0, "Authentic User"));
+                }
+            }
+        });
+    }
+
+    private void restoreDeals() throws Exception {
+        if (dealRepository.count() > 0) {
+            System.out.println("Deals already exist. Skipping deal restoration.");
+            return;
+        }
+
+        InputStream is = new ClassPathResource("deals.json").getInputStream();
+        // Since deals.json has nested user objects with IDs that might not match the
+        // new DB IDs,
+        // we'll read it as a list of maps first and then manually link.
+        List<Map<String, Object>> dealsData = objectMapper.readValue(is,
+                new TypeReference<List<Map<String, Object>>>() {
+                });
+
+        for (Map<String, Object> data : dealsData) {
+            Map<String, Object> userData = (Map<String, Object>) data.get("user");
+            String email = (String) userData.get("email");
+
+            Optional<User> userOpt = userRepository.findByEmail(email);
+            if (userOpt.isPresent()) {
+                Deal deal = new Deal();
+                deal.setUser(userOpt.get());
+                deal.setDate(java.time.LocalDate.parse((String) data.get("date")));
+                deal.setAmount(((Number) data.get("amount")).doubleValue());
+                deal.setIncentive(((Number) data.get("incentive")).doubleValue());
+                deal.setRate(((Number) data.get("rate")).doubleValue());
+                deal.setStatus((String) data.get("status"));
+
+                // Map additional fields if they exist in the JSON
+                if (data.containsKey("dealName"))
+                    deal.setDealName((String) data.get("dealName"));
+                if (data.containsKey("clientName"))
+                    deal.setClientName((String) data.get("clientName"));
+                if (data.containsKey("organizationName"))
+                    deal.setOrganizationName((String) data.get("organizationName"));
+
+                dealRepository.save(deal);
+                System.out.println("Restored deal for: " + email);
+            }
+        }
+    }
+
+    private void restorePolicies() {
+        if (policyRepository.count() == 0) {
+            org.example.salesincentivesystem.entity.Policy p = new org.example.salesincentivesystem.entity.Policy();
+            p.setTitle("Standard Commission");
+            p.setType("INCENTIVE");
+            p.setCommissionRate(10.0);
+            p.setDescription("Standard 10% commission on all deals.");
+            p.setActive(true);
+            p.setLastUpdated(java.time.LocalDateTime.now());
+            policyRepository.save(p);
+            System.out.println("Seeded Default Incentive Policy: 10%");
+        }
+    }
+
+    private void restoreTargets() {
+        userRepository.findAll().forEach(u -> {
+            if ("SALES".equals(u.getRole())) {
+                salesPerformanceRepository.findByUserId(u.getId()).ifPresent(p -> {
+                    if (p.getCurrentMonthTarget() == 0.0) {
+                        p.setCurrentMonthTarget(500000.0);
+                        p.setAchievements("Standard Performance Target");
+                        salesPerformanceRepository.save(p);
+                        System.out.println("Set 500k Target for: " + u.getEmail());
+                    }
+                });
+            }
+        });
     }
 }

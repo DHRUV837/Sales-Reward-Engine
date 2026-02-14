@@ -65,19 +65,14 @@ public class DealController {
             requestor = userRepository.findById(requestorId).orElse(null);
         }
 
-        // 2. Scenario: Fetching Specific User's Deals (e.g. "My Deals" or Admin viewing
-        // a rep)
+        // 2. Scenario: Fetching Specific User's Deals
         if (userId != null) {
-            // Simply return deals for that user
-            // (In a real app, we'd check if requestor IS that user or IS an admin of that
-            // user's org)
             return dealRepository.findAll().stream()
                     .filter(d -> d.getUser() != null && d.getUser().getId().equals(userId))
                     .collect(java.util.stream.Collectors.toList());
         }
 
         // 3. Scenario: Admin OR Sales Fetching Deals (Dashboard/Leaderboard)
-        // If we have a requestorId, use their context to filter
         if (requestor != null) {
             String role = requestor.getRole();
             String orgName = requestor.getOrganizationName();
@@ -88,7 +83,6 @@ public class DealController {
             }
 
             // 3b. Org Admin OR Sales Rep -> Org Deals
-            // (Sales reps need all org deals to see leaderboard rankings)
             if (orgName != null) {
                 return dealRepository.findByUser_OrganizationName(orgName);
             } else {
@@ -99,13 +93,7 @@ public class DealController {
             }
         }
 
-        // 4. Legacy Fallback: If no requestorId passed, check if userId *was* the admin
-        // (old logic)
-        // This handles cases where frontend hasn't updated yet or "userId" param was
-        // used as "currentUserId"
-        // (though in our new logic, we prefer explicit requestorId)
-
-        // Default to EMPTY to force secure usage if no valid context found
+        // Default to EMPTY
         return java.util.Collections.emptyList();
     }
 

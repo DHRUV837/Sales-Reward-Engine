@@ -34,8 +34,8 @@ export const OnboardingProvider = ({ children }) => {
                 // Fetch Counts Parallelly
                 const [policiesRes, dealsRes, usersRes] = await Promise.allSettled([
                     api.get("/api/policy"),
-                    api.get("/deals"),
-                    axios.get(`${API_URL}/api/users?currentUserId=${auth.user.id}`)
+                    api.get("/api/deals"),
+                    api.get(`/api/users?currentUserId=${auth.user.id}`)
                 ]);
 
                 const hasPolicies = policiesRes.status === 'fulfilled' && Array.isArray(policiesRes.value.data) && policiesRes.value.data.length > 0;
@@ -65,8 +65,8 @@ export const OnboardingProvider = ({ children }) => {
             } else if (auth.user.role === "SALES") {
                 // Sales Logic
                 const [dealsRes, payoutsRes] = await Promise.allSettled([
-                    axios.get(`${API_URL}/api/sales/my-deals/${auth.user.id}`),
-                    axios.get(`${API_URL}/api/sales/payouts/${auth.user.id}`)
+                    api.get(`/api/sales/my-deals/${auth.user.id}`),
+                    api.get(`/api/sales/payouts/${auth.user.id}`)
                 ]);
 
                 const hasDeals = dealsRes.status === 'fulfilled' && Array.isArray(dealsRes.value.data) && dealsRes.value.data.length > 0;
