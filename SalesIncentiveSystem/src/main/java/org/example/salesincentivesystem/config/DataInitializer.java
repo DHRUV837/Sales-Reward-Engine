@@ -45,23 +45,16 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            System.out.println("Starting Data Restoration from JSON...");
-
-            // 1. Seed Users from all_users.json
-            restoreUsers();
-
-            // 2. Profiles & Preferences (Ensure basic objects exist for all sales users)
-            ensureProfilesAndPreferences();
-
-            // 3. Seed Deals from deals.json
-            restoreDeals();
-
-            // 4. Seed Policies and Targets
-            restorePolicies();
-            restoreTargets();
-
-            System.out.println("100% AUTHENTIC DATA RESTORED SUCCESSFULLY!");
-
+            System.out.println("⏭️ DataInitializer DISABLED - preserving all user-created database data");
+            System.out.println("✅ Newly created deals will persist permanently on backend restart!");
+            // DISABLED to prevent overwriting user-created data on restart
+            // System.out.println("Starting Data Restoration from JSON...");
+            // restoreUsers();
+            // ensureProfilesAndPreferences();
+            // restoreDeals();
+            // restorePolicies();
+            // restoreTargets();
+            // System.out.println("100% AUTHENTIC DATA RESTORED SUCCESSFULLY!");
         } catch (Exception e) {
             System.err.println("Error during data restoration: " + e.getMessage());
             e.printStackTrace();
