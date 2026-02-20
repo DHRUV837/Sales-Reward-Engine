@@ -16,7 +16,7 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    @Async
+    // Changed from @Async to synchronous for immediate error feedback
     public void sendWelcomeEmail(String to, String name) {
         try {
             System.out.println("📧 [EMAIL SERVICE] Attempting to send welcome email to: " + to);
