@@ -2,6 +2,7 @@ package org.example.salesincentivesystem.controller;
 
 import org.example.salesincentivesystem.entity.Invitation;
 import org.example.salesincentivesystem.service.InvitationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
@@ -13,6 +14,9 @@ public class InvitationController {
     private final InvitationService invitationService;
     private final org.example.salesincentivesystem.repository.UserRepository userRepository;
     private final org.example.salesincentivesystem.service.EmailService emailService;
+
+    @Value("${FRONTEND_URL:http://localhost:5173}")
+    private String frontendUrl;
 
     public InvitationController(InvitationService invitationService,
             org.example.salesincentivesystem.repository.UserRepository userRepository,
@@ -26,7 +30,6 @@ public class InvitationController {
     public ResponseEntity<?> validateInvite(@RequestParam String token) {
         try {
             Invitation inv = invitationService.validateToken(token);
-            // Handle potentially null inviter for robustness
             String inviterName = (inv.getInvitedBy() != null) ? inv.getInvitedBy().getName() : "Company Admin";
 
             return ResponseEntity.ok(Map.of(
@@ -46,15 +49,13 @@ public class InvitationController {
                 return ResponseEntity.badRequest().body("Email is required");
             }
 
-            // Get optional parameters
             Long assignedDealId = body.get("assignedDealId") != null
                     ? Long.valueOf(body.get("assignedDealId").toString())
                     : null;
             String role = body.get("role") != null
                     ? body.get("role").toString()
-                    : "SALES"; // Default to SALES role
+                    : "SALES";
 
-            // Fetch Inviter (Admin) to ensure Organization Linkage
             org.example.salesincentivesystem.entity.User inviter = null;
             if (body.containsKey("invitedBy")) {
                 try {
@@ -66,20 +67,16 @@ public class InvitationController {
 
             Invitation invitation = invitationService.createInvitation(email, inviter, assignedDealId, role);
 
-            // AUTO-TRACK ONBOARDING: Mark firstUserInvited for the admin who sent this
-            // invitation
             if (inviter != null) {
                 try {
                     invitationService.markAdminFirstInvite(inviter.getId());
                 } catch (Exception ignored) {
-                    // Silently fail if onboarding tracking fails
                 }
             }
 
-            // Return the link for testing since email service might not be configured
-            String inviteLink = "http://localhost:5173/accept-invite?token=" + invitation.getToken();
+            // Use FRONTEND_URL env var so invite link works in production
+            String inviteLink = frontendUrl + "/accept-invite?token=" + invitation.getToken();
 
-            // SEND EMAIL
             String inviterName = (inviter != null) ? inviter.getName() : "Admin";
             String companyName = (inviter != null && inviter.getOrganizationName() != null)
                     ? inviter.getOrganizationName()
@@ -89,10 +86,9 @@ public class InvitationController {
 
             Map<String, Object> response = new java.util.HashMap<>();
             response.put("message", "Invitation sent successfully");
-            response.put("link", inviteLink); // Keep returning link for dev convenience
+            response.put("link", inviteLink);
             response.put("token", invitation.getToken());
 
-            // Include deal info if assigned
             if (assignedDealId != null) {
                 response.put("assignedDealId", assignedDealId);
             }

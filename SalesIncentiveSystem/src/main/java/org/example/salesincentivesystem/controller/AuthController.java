@@ -300,7 +300,11 @@ public class AuthController {
                         userWithOrg.put("role", savedUser.getRole());
                         userWithOrg.put("accountStatus", savedUser.getAccountStatus());
                         userWithOrg.put("onboardingCompleted", savedUser.getOnboardingCompleted());
-                        userWithOrg.put("organizationName", "Sales Team");
+                        userWithOrg.put("organizationName",
+                                        (invite.getInvitedBy() != null
+                                                        && invite.getInvitedBy().getOrganizationName() != null)
+                                                                        ? invite.getInvitedBy().getOrganizationName()
+                                                                        : "Sales Team");
 
                         response.put("user", userWithOrg);
                         response.put("role", savedUser.getRole());
