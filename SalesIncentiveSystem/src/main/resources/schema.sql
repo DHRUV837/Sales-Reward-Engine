@@ -32,3 +32,11 @@ CREATE TABLE IF NOT EXISTS app_users (
     first_rule_configured BOOLEAN DEFAULT FALSE,
     first_user_invited BOOLEAN DEFAULT FALSE
 );
+
+-- Assign admin@test.com and original core salesmen (IDs 1-22) to 'Global' org
+-- Only updates rows where organization_name is still NULL (safe to re-run on every deploy)
+UPDATE app_users
+SET organization_name = 'Global'
+WHERE id IN (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22)
+  AND organization_name IS NULL;
+
