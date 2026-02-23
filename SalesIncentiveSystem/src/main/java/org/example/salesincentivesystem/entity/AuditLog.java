@@ -22,6 +22,8 @@ public class AuditLog {
     @Column(length = 2000)
     private String details;
 
+    private String organizationName;
+
     private LocalDateTime timestamp;
 
     public AuditLog() {
@@ -47,7 +49,28 @@ public class AuditLog {
         this.timestamp = LocalDateTime.now();
     }
 
+    // New Constructor with Organization
+    public AuditLog(Long userId, String email, String action, String entityType, Long entityId, String details,
+            String organizationName) {
+        this.userId = userId;
+        this.email = email;
+        this.action = action;
+        this.entityType = entityType;
+        this.entityId = entityId;
+        this.details = details;
+        this.organizationName = organizationName;
+        this.timestamp = LocalDateTime.now();
+    }
+
     // Getters & Setters
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
     public Long getId() {
         return id;
     }

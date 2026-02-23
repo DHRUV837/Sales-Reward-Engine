@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/performance")
@@ -24,14 +25,67 @@ public class SalesPerformanceController {
         this.performanceService = performanceService;
     }
 
+    /**
+     * Helper method to check user permissions for accessing or modifying
+     * performance data.
+     *
+     * @param requestorId  The ID of the user making the request.
+     * @param targetUserId The ID of the user whose data is being accessed/modified.
+     * @return ResponseEntity.status(FORBIDDEN) if permission is denied, or null if
+     *         permission is granted.
+     */
+    private ResponseEntity<?> checkPermission(Long requestorId, Long targetUserId) {
+        if (requestorId == null || requestorId.equals(targetUserId)) {
+            // No requestorId provided (implies self-access or no specific permission check
+            // needed for self)
+            // Or requestor is accessing their own data, which is always allowed.
+            return null;
+        }
+
+        User requestor = userRepository.findById(requestorId).orElse(null);
+        User target = userRepository.findById(targetUserId).orElse(null);
+
+        if (requestor == null || target == null) {
+            // If either user doesn't exist, or requestor is trying to access data for a
+            // non-existent user,
+            // and they are not the target user, deny access.
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+        }
+
+        boolean isGlobalAdmin = requestor.isAdminTypeGlobal();
+        boolean isSameOrgAdmin = "ADMIN".equals(requestor.getRole()) &&
+                requestor.getOrganizationName() != null &&
+                requestor.getOrganizationName().equals(target.getOrganizationName());
+
+        if (!isGlobalAdmin && !isSameOrgAdmin) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+        }
+        return null; // Permission granted
+    }
+
     @GetMapping("/summary")
     public ResponseEntity<org.example.salesincentivesystem.dto.PerformanceSummary> getPerformanceSummary(
-            @RequestParam Long userId) {
+            @RequestParam Long userId,
+            @RequestParam(required = false) Long requestorId) {
+
+        ResponseEntity<?> permissionCheckResult = checkPermission(requestorId, userId);
+        if (permissionCheckResult != null) {
+            return (ResponseEntity<org.example.salesincentivesystem.dto.PerformanceSummary>) permissionCheckResult;
+        }
+
         return ResponseEntity.ok(performanceService.getPerformanceSummary(userId));
     }
 
     @GetMapping
-    public ResponseEntity<SalesPerformance> getPerformance(@RequestParam Long userId) {
+    public ResponseEntity<SalesPerformance> getPerformance(
+            @RequestParam Long userId,
+            @RequestParam(required = false) Long requestorId) {
+
+        ResponseEntity<?> permissionCheckResult = checkPermission(requestorId, userId);
+        if (permissionCheckResult != null) {
+            return (ResponseEntity<SalesPerformance>) permissionCheckResult;
+        }
+
         return performanceRepository.findByUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> {
@@ -50,9 +104,17 @@ public class SalesPerformanceController {
     }
 
     @PutMapping("/target")
-    public ResponseEntity<?> updateTarget(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<?> updateTarget(
+            @RequestBody Map<String, Object> payload,
+            @RequestParam(required = false) Long requestorId) {
+
         Long userId = ((Number) payload.get("userId")).longValue();
         Double target = ((Number) payload.get("target")).doubleValue();
+
+        ResponseEntity<?> permissionCheckResult = checkPermission(requestorId, userId);
+        if (permissionCheckResult != null) {
+            return permissionCheckResult;
+        }
 
         return performanceRepository.findByUserId(userId)
                 .map(perf -> {

@@ -23,12 +23,12 @@ public class UserController {
 
     // GET - List all users (For Admin)
     @GetMapping
-    public List<User> getAllUsers(@RequestParam(required = false) Long currentUserId) {
-        System.out.println("DEBUG: Fetching users. CurrentUserID: " + currentUserId);
+    public List<User> getAllUsers(@RequestParam(required = false) Long requestorId) {
+        System.out.println("DEBUG: Fetching users. RequestorID: " + requestorId);
 
-        // If currentUserId is provided, filter by that admin's organization
-        if (currentUserId != null) {
-            return userRepository.findById(currentUserId)
+        // If requestorId is provided, filter by that admin's organization
+        if (requestorId != null) {
+            return userRepository.findById(requestorId)
                     .map(admin -> {
                         System.out.println(
                                 "DEBUG: Admin found: " + admin.getName() + ", Org: " + admin.getOrganizationName());
@@ -52,7 +52,7 @@ public class UserController {
                         return java.util.Collections.<User>emptyList();
                     })
                     .orElseGet(() -> {
-                        System.out.println("DEBUG: Admin with ID " + currentUserId + " not found.");
+                        System.out.println("DEBUG: Admin with ID " + requestorId + " not found.");
                         return java.util.Collections.emptyList();
                     });
         }
@@ -65,8 +65,28 @@ public class UserController {
 
     // PATCH - Update User Details (General)
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+    public ResponseEntity<?> updateUser(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> updates,
+            @RequestParam(required = false) Long requestorId) {
+
         return userRepository.findById(id).map(user -> {
+            // Permission Check
+            if (requestorId != null) {
+                User requestor = userRepository.findById(requestorId).orElse(null);
+                if (requestor == null)
+                    return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+
+                boolean isGlobalAdmin = requestor.isAdminTypeGlobal();
+                boolean isSameOrgAdmin = "ADMIN".equals(requestor.getRole()) &&
+                        requestor.getOrganizationName() != null &&
+                        requestor.getOrganizationName().equals(user.getOrganizationName());
+
+                if (!isGlobalAdmin && !isSameOrgAdmin) {
+                    return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+                }
+            }
+
             if (updates.containsKey("organizationName")) {
                 user.setOrganizationName((String) updates.get("organizationName"));
             }
@@ -84,8 +104,28 @@ public class UserController {
 
     // PATCH - Update User Status (Activate/Disable)
     @PatchMapping("/{id}/status")
-    public ResponseEntity<?> updateUserStatus(@PathVariable Long id, @RequestBody Map<String, String> updates) {
+    public ResponseEntity<?> updateUserStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> updates,
+            @RequestParam(required = false) Long requestorId) {
+
         return userRepository.findById(id).map(user -> {
+            // Permission Check
+            if (requestorId != null) {
+                User requestor = userRepository.findById(requestorId).orElse(null);
+                if (requestor == null)
+                    return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+
+                boolean isGlobalAdmin = requestor.isAdminTypeGlobal();
+                boolean isSameOrgAdmin = "ADMIN".equals(requestor.getRole()) &&
+                        requestor.getOrganizationName() != null &&
+                        requestor.getOrganizationName().equals(user.getOrganizationName());
+
+                if (!isGlobalAdmin && !isSameOrgAdmin) {
+                    return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+                }
+            }
+
             String newStatus = updates.get("status");
             if (newStatus != null) {
                 String oldStatus = user.getAccountStatus();
@@ -94,7 +134,7 @@ public class UserController {
 
                 // Audit Log
                 auditLogService.logAction(
-                        null, // Actor unknown without auth context
+                        requestorId,
                         "ADMIN",
                         "UPDATE_STATUS",
                         "USER",
@@ -109,11 +149,30 @@ public class UserController {
 
     // DELETE - Remove User (For cleanup/admin purposes)
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUser(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long requestorId) {
+
         return userRepository.findById(id).map(user -> {
+            // Permission Check
+            if (requestorId != null) {
+                User requestor = userRepository.findById(requestorId).orElse(null);
+                if (requestor == null)
+                    return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+
+                boolean isGlobalAdmin = requestor.isAdminTypeGlobal();
+                boolean isSameOrgAdmin = "ADMIN".equals(requestor.getRole()) &&
+                        requestor.getOrganizationName() != null &&
+                        requestor.getOrganizationName().equals(user.getOrganizationName());
+
+                if (!isGlobalAdmin && !isSameOrgAdmin) {
+                    return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+                }
+            }
+
             // Audit log before deletion
             auditLogService.logAction(
-                    null,
+                    requestorId,
                     "ADMIN",
                     "DELETE_USER",
                     "USER",

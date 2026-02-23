@@ -19,9 +19,16 @@ public class LeaderboardService {
         this.dealRepository = dealRepository;
     }
 
-    public List<LeaderboardEntry> getLeaderboard(String period) {
-        // Fetch all approved deals
-        List<Deal> allDeals = dealRepository.findAll().stream()
+    public List<LeaderboardEntry> getLeaderboard(String period, String orgName) {
+        // Fetch relevant approved deals
+        List<Deal> allDeals;
+        if (orgName != null) {
+            allDeals = dealRepository.findByUser_OrganizationName(orgName);
+        } else {
+            allDeals = dealRepository.findAll();
+        }
+
+        allDeals = allDeals.stream()
                 .filter(d -> "APPROVED".equalsIgnoreCase(d.getStatus()))
                 .filter(d -> d.getUser() != null)
                 .collect(Collectors.toList());

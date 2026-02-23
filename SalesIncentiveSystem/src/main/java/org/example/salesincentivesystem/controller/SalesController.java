@@ -20,7 +20,15 @@ public class SalesController {
     }
 
     @GetMapping("/my-deals/{userId}")
-    public ResponseEntity<List<Deal>> getMyDeals(@PathVariable Long userId) {
+    public ResponseEntity<List<Deal>> getMyDeals(
+            @PathVariable Long userId,
+            @RequestParam(required = false) Long requestorId) {
+
+        // Security Check: Users can only see their own deals via this endpoint
+        if (requestorId != null && !requestorId.equals(userId)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+        }
+
         List<Deal> deals = dealRepository.findAll().stream()
                 .filter(d -> d.getUser() != null && d.getUser().getId().equals(userId))
                 .collect(Collectors.toList());
@@ -28,7 +36,15 @@ public class SalesController {
     }
 
     @GetMapping("/payouts/{userId}")
-    public ResponseEntity<List<Map<String, Object>>> getPayouts(@PathVariable Long userId) {
+    public ResponseEntity<List<Map<String, Object>>> getPayouts(
+            @PathVariable Long userId,
+            @RequestParam(required = false) Long requestorId) {
+
+        // Security Check
+        if (requestorId != null && !requestorId.equals(userId)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+        }
+
         // Mock Payouts for now based on approved deals
         List<Deal> approvedDeals = dealRepository.findAll().stream()
                 .filter(d -> d.getUser() != null && d.getUser().getId().equals(userId)

@@ -1,6 +1,6 @@
 import SalesLayout from "../../layouts/SalesLayout";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import api, { API_URL } from "../../api";
+import api from "../../api";
 import PageHeader from "../../components/common/PageHeader";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -22,10 +22,8 @@ const DealApproval = () => {
 
     const fetchDeals = useCallback(async () => {
         try {
-            const userId = localStorage.getItem("userId") || "1";
-            const res = await api.get("/api/deals", {
-                params: { requestorId: userId }
-            });
+            // Global interceptor handles requestorId automatically
+            const res = await api.get("/api/deals");
             setDeals(res.data);
         } catch (err) {
             console.error("Failed to fetch deals", err);

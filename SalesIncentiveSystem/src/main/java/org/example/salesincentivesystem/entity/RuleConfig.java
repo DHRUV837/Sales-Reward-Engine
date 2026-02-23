@@ -15,6 +15,15 @@ public class RuleConfig {
     private double threshold; // e.g., 100000.0
     private String action; // e.g., "NOTIFY_ADMIN", "FLAG_RISK", "AUTO_APPROVE"
     private boolean active = true;
+    private String organizationName;
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
 
     public Long getId() {
         return id;

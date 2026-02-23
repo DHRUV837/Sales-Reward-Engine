@@ -59,49 +59,82 @@ public class DealController {
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Long requestorId) {
 
-        // 1. Resolve Security Context (Who is asking?)
+        // 1. Resolve Security Context
         org.example.salesincentivesystem.entity.User requestor = null;
         if (requestorId != null) {
             requestor = userRepository.findById(requestorId).orElse(null);
         }
 
+        if (requestor == null) {
+            return java.util.Collections.emptyList();
+        }
+
+        String role = requestor.getRole();
+        String orgName = requestor.getOrganizationName();
+
         // 2. Scenario: Fetching Specific User's Deals
-        if (userId != null) {
+        if (userId != null && requestorId != null) {
+            // Check Permissions: Global Admin OR Same Org OR Self
+            boolean isSelf = requestorId.equals(userId);
+            boolean isGlobalAdmin = "ADMIN".equals(role) && requestor.isAdminTypeGlobal();
+
+            org.example.salesincentivesystem.entity.User targetUser = userRepository.findById(userId).orElse(null);
+            boolean isSameOrg = targetUser != null && orgName != null
+                    && orgName.equals(targetUser.getOrganizationName());
+
+            if (isSelf || isGlobalAdmin || isSameOrg) {
+                return dealRepository.findAll().stream()
+                        .filter(d -> d.getUser() != null && d.getUser().getId().equals(userId))
+                        .collect(java.util.stream.Collectors.toList());
+            } else {
+                return java.util.Collections.emptyList();
+            }
+        }
+
+        // 3. Scenario: Dashboard/Leaderboard (Fetch all accessible deals)
+
+        // 3a. Global Admin -> All Deals
+        if ("ADMIN".equals(role) && requestor.isAdminTypeGlobal()) {
+            return dealRepository.findAll();
+        }
+
+        // 3b. Org Admin OR Sales Rep -> Org Deals
+        if (orgName != null) {
+            return dealRepository.findByUser_OrganizationName(orgName);
+        } else {
+            // Fallback for users with no org: only their own deals
+            final Long finalRequestorId = requestorId;
             return dealRepository.findAll().stream()
-                    .filter(d -> d.getUser() != null && d.getUser().getId().equals(userId))
+                    .filter(d -> d.getUser() != null && d.getUser().getId().equals(finalRequestorId))
                     .collect(java.util.stream.Collectors.toList());
         }
-
-        // 3. Scenario: Admin OR Sales Fetching Deals (Dashboard/Leaderboard)
-        if (requestor != null) {
-            String role = requestor.getRole();
-            String orgName = requestor.getOrganizationName();
-
-            // 3a. Global Admin -> All Deals
-            if ("ADMIN".equals(role) && requestor.isAdminTypeGlobal()) {
-                return dealRepository.findAll();
-            }
-
-            // 3b. Org Admin OR Sales Rep -> Org Deals
-            if (orgName != null) {
-                return dealRepository.findByUser_OrganizationName(orgName);
-            } else {
-                final org.example.salesincentivesystem.entity.User finalRequestor = requestor;
-                return dealRepository.findAll().stream()
-                        .filter(d -> d.getUser() != null && d.getUser().getId().equals(finalRequestor.getId()))
-                        .collect(java.util.stream.Collectors.toList());
-            }
-        }
-
-        // Default to EMPTY
-        return java.util.Collections.emptyList();
     }
 
     // ✅ PATCH - update status (Approve/Reject)
-    // ✅ PATCH - update status (Approve/Reject)
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Deal> updateDealStatus(@PathVariable Long id, @RequestBody Map<String, String> statusUpdate) {
+    public ResponseEntity<Deal> updateDealStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> statusUpdate,
+            @RequestParam(required = false) Long requestorId) {
+
         return dealRepository.findById(id).map(deal -> {
+            // Permission Check: Requestor must be Global Admin OR same Org Admin
+            if (requestorId != null) {
+                org.example.salesincentivesystem.entity.User requestor = userRepository.findById(requestorId)
+                        .orElse(null);
+                if (requestor == null)
+                    return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).<Deal>build();
+
+                boolean isGlobalAdmin = "ADMIN".equals(requestor.getRole()) && requestor.isAdminTypeGlobal();
+                boolean isSameOrgAdmin = "ADMIN".equals(requestor.getRole()) &&
+                        requestor.getOrganizationName() != null &&
+                        requestor.getOrganizationName().equals(deal.getOrganizationName());
+
+                if (!isGlobalAdmin && !isSameOrgAdmin) {
+                    return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).<Deal>build();
+                }
+            }
+
             String newStatus = statusUpdate.get("status");
             deal.setStatus(newStatus);
 

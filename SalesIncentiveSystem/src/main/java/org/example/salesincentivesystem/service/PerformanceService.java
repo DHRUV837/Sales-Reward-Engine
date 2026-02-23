@@ -45,11 +45,18 @@ public class PerformanceService {
         summary.setUserName(user.getName());
         summary.setTotalDeals(allUserDeals.size());
 
-        // --- Calculate Global Rank ---
-        // 1. Get all deals from repository (or optimized query)
-        List<Deal> allDealsGlobal = dealRepository.findAll();
+        // --- Calculate Organization Rank ---
+        String userOrg = user.getOrganizationName();
+        // 1. Get relevant deals (within Org or Global if no Org)
+        List<Deal> rankingDeals;
+        if (userOrg != null) {
+            rankingDeals = dealRepository.findByUser_OrganizationName(userOrg);
+        } else {
+            rankingDeals = dealRepository.findAll();
+        }
+
         // 2. Group by User ID and sum incentives
-        Map<Long, Double> userIncentives = allDealsGlobal.stream()
+        Map<Long, Double> userIncentives = rankingDeals.stream()
                 .filter(d -> d.getUser() != null && "APPROVED".equalsIgnoreCase(d.getStatus()))
                 .collect(Collectors.groupingBy(
                         d -> d.getUser().getId(),
@@ -61,7 +68,7 @@ public class PerformanceService {
                 .collect(Collectors.toList());
         // 4. Find current user's rank (1-based index)
         int rank = rankedUserIds.indexOf(userId) + 1;
-        summary.setRank(rank > 0 ? rank : rankedUserIds.size() + 1); // If no deals, rank last
+        summary.setRank(rank > 0 ? rank : rankedUserIds.size() + 1); // Rank within Org
 
         // Calculate Totals based on ALL deals
         long approved = allUserDeals.stream().filter(d -> "APPROVED".equalsIgnoreCase(d.getStatus())).count();

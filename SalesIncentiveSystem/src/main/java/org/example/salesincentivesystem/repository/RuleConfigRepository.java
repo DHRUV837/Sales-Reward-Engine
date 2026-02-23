@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface RuleConfigRepository extends JpaRepository<RuleConfig, Long> {
     List<RuleConfig> findByActiveTrue();
+
+    List<RuleConfig> findByOrganizationName(String organizationName);
 }

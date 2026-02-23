@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import api, { API_URL } from "../../api";
+import api from "../../api";
 import AdminLayout from "../../layouts/AdminLayout";
 import StatCard from "../../components/common/StatCard";
 import PageHeader from "../../components/common/PageHeader";
@@ -16,7 +15,7 @@ const AdminPayouts = () => {
         setLoading(true);
         try {
             const [payoutsRes, summaryRes] = await Promise.all([
-                api.get(`${API_URL}/payouts?status=${filter}`),
+                api.get(`/payouts?status=${filter}`),
                 api.get("/payouts/summary")
             ]);
             setPayouts(payoutsRes.data);

@@ -40,10 +40,19 @@ public class Policy {
     private Double bonusAmount; // Fixed bonus amount
 
     private LocalDateTime lastUpdated;
+    private String organizationName;
 
     private boolean isActive = true;
 
     // Getters and Setters
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
     public Long getId() {
         return id;
     }

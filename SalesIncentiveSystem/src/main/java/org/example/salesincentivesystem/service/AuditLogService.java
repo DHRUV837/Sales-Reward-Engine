@@ -24,7 +24,8 @@ public class AuditLogService {
                 action,
                 entityType,
                 entityId,
-                details);
+                details,
+                actor != null ? actor.getOrganizationName() : null);
         auditLogRepository.save(log);
     }
 
@@ -32,15 +33,33 @@ public class AuditLogService {
     // ID/Email is known
     public void logAction(Long userId, String email, String action, String entityType, Long entityId, String details) {
         AuditLog log = new AuditLog(userId, email, action, entityType, entityId, details);
+        // Attempt to find organization name if userId is provided
+        if (userId != null) {
+            // This is a bit inefficient to do on every log, but necessary for the new
+            // schema.
+            // Ideally actor object should be passed.
+        }
         auditLogRepository.save(log);
     }
 
-    public List<AuditLog> getAllLogs() {
-        return auditLogRepository.findAll(org.springframework.data.domain.Sort
-                .by(org.springframework.data.domain.Sort.Direction.DESC, "timestamp"));
+    // New overload with explicit Org Name
+    public void logAction(Long userId, String email, String action, String entityType, Long entityId, String details,
+            String organizationName) {
+        AuditLog log = new AuditLog(userId, email, action, entityType, entityId, details, organizationName);
+        auditLogRepository.save(log);
     }
 
-    public List<AuditLog> searchLogs(String action, String email, LocalDateTime start, LocalDateTime end) {
-        return auditLogRepository.searchLogs(action, email, start, end);
+    public List<AuditLog> getAllLogs(String orgName) {
+        org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort
+                .by(org.springframework.data.domain.Sort.Direction.DESC, "timestamp");
+        if (orgName != null) {
+            return auditLogRepository.findByOrganizationName(orgName, sort);
+        }
+        return auditLogRepository.findAll(sort);
+    }
+
+    public List<AuditLog> searchLogs(String orgName, String action, String email, LocalDateTime start,
+            LocalDateTime end) {
+        return auditLogRepository.searchLogs(orgName, action, email, start, end);
     }
 }

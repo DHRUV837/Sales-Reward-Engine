@@ -40,9 +40,19 @@ public class AdminDealController {
      * Status: ASSIGNED
      */
     @PostMapping
-    public org.springframework.http.ResponseEntity<?> createDeal(@RequestBody Map<String, Object> payload) {
+    public org.springframework.http.ResponseEntity<?> createDeal(
+            @RequestBody Map<String, Object> payload,
+            @RequestParam(required = false) Long requestorId) {
         try {
             Deal deal = new Deal();
+
+            // Extract requestor to get organization context
+            String requestorOrg = null;
+            if (requestorId != null) {
+                requestorOrg = userRepository.findById(requestorId)
+                        .map(User::getOrganizationName)
+                        .orElse(null);
+            }
 
             // Extract and validate all required fields
             String dealName = (String) payload.get("dealName");
@@ -51,14 +61,19 @@ public class AdminDealController {
             }
             deal.setDealName(dealName);
 
-            String orgName = (String) payload.get("organizationName");
-            if (orgName == null || orgName.trim().isEmpty()) {
-                return org.springframework.http.ResponseEntity.badRequest().body("Organization Name is required");
+            // Inherit or validate organization
+            if (requestorOrg != null) {
+                deal.setOrganizationName(requestorOrg);
+            } else {
+                String orgName = (String) payload.get("organizationName");
+                if (orgName == null || orgName.trim().isEmpty()) {
+                    return org.springframework.http.ResponseEntity.badRequest().body("Organization Name is required");
+                }
+                deal.setOrganizationName(orgName);
             }
-            deal.setOrganizationName(orgName);
 
             // PRD MANDATORY FIELDS
-            deal.setClientName((String) payload.getOrDefault("clientName", orgName));
+            deal.setClientName((String) payload.getOrDefault("clientName", deal.getOrganizationName()));
             deal.setIndustry((String) payload.getOrDefault("industry", "Uncategorized"));
             deal.setRegion((String) payload.getOrDefault("region", "Global"));
             deal.setCurrency((String) payload.getOrDefault("currency", "₹"));
@@ -94,7 +109,6 @@ public class AdminDealController {
                 java.time.LocalDate closeDate = java.time.LocalDate.parse((String) payload.get("expectedCloseDate"));
 
                 // Allow backdating for "Legacy" deals or corrections, but suggest future.
-                // Strict check:
                 if (closeDate.isBefore(java.time.LocalDate.now())) {
                     return org.springframework.http.ResponseEntity.badRequest()
                             .body("Expected Close Date cannot be in the past (" + closeDate + ")");
@@ -143,6 +157,12 @@ public class AdminDealController {
             if (!"SALES".equals(salesExec.getRole())) {
                 return org.springframework.http.ResponseEntity.badRequest()
                         .body("Can only assign deals to users with SALES role");
+            }
+
+            // Security check: cannot assign across organizations if not global admin
+            if (requestorOrg != null && !requestorOrg.equals(salesExec.getOrganizationName())) {
+                return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN)
+                        .body("Cannot assign deal to a user in a different organization");
             }
 
             deal.setUser(salesExec);
@@ -210,9 +230,26 @@ public class AdminDealController {
      * Admin updates deal details (before approval)
      */
     @PutMapping("/{id}")
-    public Deal updateDeal(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+    public Deal updateDeal(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> payload,
+            @RequestParam(required = false) Long requestorId) {
+
         Deal deal = dealRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));
+
+        // Security Check: Org Match
+        if (requestorId != null) {
+            User requestor = userRepository.findById(requestorId).orElse(null);
+            if (requestor != null) {
+                boolean isGlobalAdmin = requestor.isAdminTypeGlobal();
+                boolean isSameOrg = requestor.getOrganizationName() != null &&
+                        requestor.getOrganizationName().equals(deal.getOrganizationName());
+                if (!isGlobalAdmin && !isSameOrg) {
+                    throw new RuntimeException("Access denied: Organization mismatch");
+                }
+            }
+        }
 
         // Can only edit if not yet approved
         if ("APPROVED".equals(deal.getStatus())) {
@@ -272,28 +309,65 @@ public class AdminDealController {
      * Admin gets all deals with optional filters
      */
     @GetMapping
-        public List<Deal> getAllDeals(
+    public List<Deal> getAllDeals(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) String priority) {
+            @RequestParam(required = false) String priority,
+            @RequestParam(required = false) Long requestorId) {
 
-        List<Deal> allDeals = dealRepository.findAll();
+        String requestorOrg = null;
+        boolean isGlobalAdmin = false;
+
+        if (requestorId != null) {
+            User requestor = userRepository.findById(requestorId).orElse(null);
+            if (requestor != null) {
+                requestorOrg = requestor.getOrganizationName();
+                isGlobalAdmin = requestor.isAdminTypeGlobal();
+            }
+        }
+
+        List<Deal> deals;
+        if (isGlobalAdmin) {
+            deals = dealRepository.findAll();
+        } else if (requestorOrg != null) {
+            deals = dealRepository.findByUser_OrganizationName(requestorOrg);
+        } else {
+            return java.util.Collections.emptyList();
+        }
 
         // Apply filters (case-insensitive for status and priority)
-        return allDeals.stream()
-            .filter(d -> status == null || (d.getStatus() != null && status.equalsIgnoreCase(d.getStatus())))
-            .filter(d -> userId == null || (d.getUser() != null && userId.equals(d.getUser().getId())))
-            .filter(d -> priority == null || (d.getPriority() != null && priority.equalsIgnoreCase(d.getPriority())))
-            .collect(java.util.stream.Collectors.toList());
-        }
+        return deals.stream()
+                .filter(d -> status == null || (d.getStatus() != null && status.equalsIgnoreCase(d.getStatus())))
+                .filter(d -> userId == null || (d.getUser() != null && userId.equals(d.getUser().getId())))
+                .filter(d -> priority == null
+                        || (d.getPriority() != null && priority.equalsIgnoreCase(d.getPriority())))
+                .collect(java.util.stream.Collectors.toList());
+    }
 
     /**
      * Admin reassigns deal to different sales executive
      */
     @PatchMapping("/{id}/reassign")
-    public Deal reassignDeal(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+    public Deal reassignDeal(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> payload,
+            @RequestParam(required = false) Long requestorId) {
+
         Deal deal = dealRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));
+
+        // Security Check
+        if (requestorId != null) {
+            User requestor = userRepository.findById(requestorId).orElse(null);
+            if (requestor != null) {
+                boolean isGlobalAdmin = requestor.isAdminTypeGlobal();
+                boolean isSameOrg = requestor.getOrganizationName() != null &&
+                        requestor.getOrganizationName().equals(deal.getOrganizationName());
+                if (!isGlobalAdmin && !isSameOrg) {
+                    throw new RuntimeException("Access denied: Organization mismatch");
+                }
+            }
+        }
 
         Long newUserId = Long.parseLong(payload.get("newUserId").toString());
         User newSalesExec = userRepository.findById(newUserId)
@@ -301,6 +375,17 @@ public class AdminDealController {
 
         if (!"SALES".equals(newSalesExec.getRole())) {
             throw new RuntimeException("Can only assign to SALES role");
+        }
+
+        // Verify destination org if not global admin
+        if (requestorId != null) {
+            User requestor = userRepository.findById(requestorId).orElse(null);
+            if (requestor != null && !requestor.isAdminTypeGlobal()) {
+                if (requestor.getOrganizationName() == null
+                        || !requestor.getOrganizationName().equals(newSalesExec.getOrganizationName())) {
+                    throw new RuntimeException("Cannot reassign to a user in a different organization");
+                }
+            }
         }
 
         User oldUser = deal.getUser();
@@ -335,8 +420,26 @@ public class AdminDealController {
      * Admin gets a single deal by ID
      */
     @GetMapping("/{id}")
-    public Deal getDealById(@PathVariable Long id) {
-        return dealRepository.findById(id)
+    public Deal getDealById(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long requestorId) {
+
+        Deal deal = dealRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));
+
+        // Security Check
+        if (requestorId != null) {
+            User requestor = userRepository.findById(requestorId).orElse(null);
+            if (requestor != null) {
+                boolean isGlobalAdmin = requestor.isAdminTypeGlobal();
+                boolean isSameOrg = requestor.getOrganizationName() != null &&
+                        requestor.getOrganizationName().equals(deal.getOrganizationName());
+                if (!isGlobalAdmin && !isSameOrg) {
+                    throw new RuntimeException("Access denied: Organization mismatch");
+                }
+            }
+        }
+
+        return deal;
     }
 }

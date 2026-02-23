@@ -22,7 +22,26 @@ public class PolicyController {
 
     // Public/Sales: Get all active policies
     @GetMapping
-    public List<Policy> getActivePolicies(@RequestParam(required = false) String type) {
+    public List<Policy> getActivePolicies(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) Long requestorId) {
+
+        String orgName = null;
+        if (requestorId != null) {
+            orgName = userRepository.findById(requestorId)
+                    .map(org.example.salesincentivesystem.entity.User::getOrganizationName)
+                    .orElse(null);
+        }
+
+        if (orgName != null) {
+            if (type != null) {
+                return policyRepository.findByOrganizationNameAndTypeAndIsActiveTrue(orgName, type);
+            }
+            return policyRepository.findByOrganizationNameAndIsActiveTrue(orgName);
+        }
+
+        // Fallback or Global Admin (if orgName is null, could be global admin or
+        // unassigned)
         if (type != null) {
             return policyRepository.findByTypeAndIsActiveTrue(type);
         }
@@ -31,7 +50,24 @@ public class PolicyController {
 
     // Admin: Get all (including inactive/drafts)
     @GetMapping("/admin")
-    public List<Policy> getAllPolicies(@RequestParam(required = false) String type) {
+    public List<Policy> getAllPolicies(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) Long requestorId) {
+
+        String orgName = null;
+        if (requestorId != null) {
+            orgName = userRepository.findById(requestorId)
+                    .map(org.example.salesincentivesystem.entity.User::getOrganizationName)
+                    .orElse(null);
+        }
+
+        if (orgName != null) {
+            if (type != null) {
+                return policyRepository.findByOrganizationNameAndType(orgName, type);
+            }
+            return policyRepository.findByOrganizationName(orgName);
+        }
+
         if (type != null) {
             return policyRepository.findByType(type);
         }
@@ -45,11 +81,11 @@ public class PolicyController {
 
         // Handle both new and existing policies
         if (payload.containsKey("id") && payload.get("id") != null) {
-            Long id = Long.parseLong(payload.get("id").toString());
-            policy = policyRepository.findById(id).orElse(new Policy());
+            Long id = Long.valueOf(payload.get("id").toString());
+            policy = java.util.Optional.ofNullable(id).flatMap(policyRepository::findById).orElse(new Policy());
         }
 
-        // Set policy fields from payload (using correct field names from Policy entity)
+        // Set policy fields from payload
         if (payload.containsKey("title")) {
             policy.setTitle((String) payload.get("title"));
         }
@@ -69,26 +105,28 @@ public class PolicyController {
             policy.setActive(Boolean.parseBoolean(payload.get("isActive").toString()));
         }
 
-        policy.setLastUpdated(LocalDateTime.now());
-        Policy savedPolicy = policyRepository.save(policy);
-
-        // AUTO-TRACK ONBOARDING: Mark firstRuleConfigured for the admin who
-        // created/activated this policy
-        if (payload.containsKey("createdBy") && savedPolicy.isActive()) {
+        // Set Organization Name from Creator
+        if (payload.containsKey("createdBy")) {
             try {
                 Long adminId = Long.parseLong(payload.get("createdBy").toString());
+                final Policy finalPolicy = policy;
                 userRepository.findById(adminId).ifPresent(admin -> {
+                    if (admin.getOrganizationName() != null) {
+                        finalPolicy.setOrganizationName(admin.getOrganizationName());
+                    }
+
+                    // AUTO-TRACK ONBOARDING
                     if (Boolean.FALSE.equals(admin.getFirstRuleConfigured())) {
                         admin.setFirstRuleConfigured(true);
                         userRepository.save(admin);
                     }
                 });
             } catch (Exception ignored) {
-                // Silently fail if onboarding tracking fails
             }
         }
 
-        return savedPolicy;
+        policy.setLastUpdated(LocalDateTime.now());
+        return policyRepository.save(policy);
     }
 
     // Admin: Delete (Soft or Hard)

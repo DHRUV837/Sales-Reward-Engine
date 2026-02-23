@@ -13,4 +13,13 @@ public interface PolicyRepository extends JpaRepository<Policy, Long> {
     List<Policy> findByType(String type);
 
     List<Policy> findByTypeAndIsActiveTrue(String type);
+
+    // Organization-based finders
+    List<Policy> findByOrganizationName(String organizationName);
+
+    List<Policy> findByOrganizationNameAndIsActiveTrue(String organizationName);
+
+    List<Policy> findByOrganizationNameAndType(String organizationName, String type);
+
+    List<Policy> findByOrganizationNameAndTypeAndIsActiveTrue(String organizationName, String type);
 }

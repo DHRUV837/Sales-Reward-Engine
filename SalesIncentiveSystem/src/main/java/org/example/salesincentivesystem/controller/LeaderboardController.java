@@ -11,14 +11,39 @@ import java.util.List;
 public class LeaderboardController {
 
     private final LeaderboardService leaderboardService;
+    private final org.example.salesincentivesystem.repository.UserRepository userRepository;
 
-    public LeaderboardController(LeaderboardService leaderboardService) {
+    public LeaderboardController(LeaderboardService leaderboardService,
+            org.example.salesincentivesystem.repository.UserRepository userRepository) {
         this.leaderboardService = leaderboardService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
     public List<LeaderboardEntry> getLeaderboard(
-            @RequestParam(defaultValue = "THIS_MONTH") String period) {
-        return leaderboardService.getLeaderboard(period);
+            @RequestParam(defaultValue = "THIS_MONTH") String period,
+            @RequestParam(required = false) Long requestorId) {
+
+        String orgName = null;
+        if (requestorId != null) {
+            orgName = userRepository.findById(requestorId)
+                    .map(org.example.salesincentivesystem.entity.User::getOrganizationName)
+                    .orElse(null);
+
+            // SECURITY: If not global admin and no org, return empty
+            boolean isGlobalAdmin = userRepository.findById(requestorId)
+                    .map(org.example.salesincentivesystem.entity.User::isAdminTypeGlobal)
+                    .orElse(false);
+
+            if (!isGlobalAdmin && orgName == null) {
+                return java.util.Collections.emptyList();
+            }
+
+            if (!isGlobalAdmin) {
+                return leaderboardService.getLeaderboard(period, orgName);
+            }
+        }
+
+        return leaderboardService.getLeaderboard(period, null);
     }
 }
