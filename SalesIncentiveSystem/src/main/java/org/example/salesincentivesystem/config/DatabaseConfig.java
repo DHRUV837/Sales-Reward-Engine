@@ -24,24 +24,49 @@ public class DatabaseConfig {
     @Primary
     public DataSource dataSource() {
         String normalizedUrl = dbUrl;
+        String finalUsername = username;
+        String finalPassword = password;
 
-        // Render and other platforms sometimes provide URLs starting with postgresql://
-        // or postgres://
-        // Spring Boot requires jdbc:postgresql://
         if (normalizedUrl != null) {
-            if (normalizedUrl.startsWith("postgresql://")) {
+            // Remove jdbc: prefix for normalization parsing if it exists
+            String connectionString = normalizedUrl;
+            if (connectionString.startsWith("jdbc:")) {
+                connectionString = connectionString.substring(5);
+            }
+
+            // Standard Render/Heroku format: postgresql://user:password@host:port/database
+            if (connectionString.startsWith("postgresql://") || connectionString.startsWith("postgres://")) {
+                int doubleSlashIndex = connectionString.indexOf("//");
+                String remainder = connectionString.substring(doubleSlashIndex + 2);
+
+                int atIndex = remainder.indexOf("@");
+                if (atIndex != -1) {
+                    String credentialsPart = remainder.substring(0, atIndex);
+                    String hostPart = remainder.substring(atIndex + 1);
+
+                    // Extract credentials from URL
+                    String[] creds = credentialsPart.split(":");
+                    if (creds.length >= 2) {
+                        finalUsername = creds[0];
+                        finalPassword = creds[1];
+                    }
+
+                    normalizedUrl = "jdbc:postgresql://" + hostPart;
+                } else {
+                    normalizedUrl = "jdbc:postgresql://" + remainder;
+                }
+            } else if (!normalizedUrl.startsWith("jdbc:")) {
                 normalizedUrl = "jdbc:" + normalizedUrl;
-            } else if (normalizedUrl.startsWith("postgres://")) {
-                normalizedUrl = "jdbc:postgresql://" + normalizedUrl.substring("postgres://".length());
             }
         }
 
         System.out.println("Initializing DataSource with normalized URL: " + normalizedUrl);
+        System.out.println("Using username extracted/provided: " + finalUsername);
 
         return DataSourceBuilder.create()
                 .url(normalizedUrl)
-                .username(username)
-                .password(password)
+                .username(finalUsername)
+                .password(finalPassword)
                 .build();
     }
 }
