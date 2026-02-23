@@ -17,6 +17,9 @@ public class EmailService {
     @Value("${SENDGRID_API_KEY:}")
     private String sendGridApiKey;
 
+    @Value("${FRONTEND_URL:http://localhost:5173}")
+    private String frontendUrl;
+
     private static final String FROM_EMAIL = "teamsalesrewardengine@gmail.com";
     private static final String FROM_NAME = "Sales Reward Engine";
 
@@ -45,7 +48,7 @@ public class EmailService {
                                     </div>
                                     <p style="color: #4b5563; font-size: 16px;">You can now access your dashboard to view your incentives, track real-time performance, and manage your deals.</p>
                                     <div style="margin: 32px 0; text-align: center;">
-                                        <a href="https://sales-reward-engine.vercel.app/login" style="display: inline-block; background-color: #4f46e5; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                                        <a href="%s/login" style="display: inline-block; background-color: #4f46e5; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
                                             Access Dashboard
                                         </a>
                                     </div>
@@ -59,7 +62,7 @@ public class EmailService {
                         </body>
                         </html>
                     """
-                    .formatted(name);
+                    .formatted(name, frontendUrl);
 
             Content content = new Content("text/html", htmlContent);
             Mail mail = new Mail(from, subject, toEmail, content);
