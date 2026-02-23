@@ -331,8 +331,17 @@ public class AdminDealController {
             deals = dealRepository.findAll();
         } else if (requestorOrg != null) {
             deals = dealRepository.findByUser_OrganizationName(requestorOrg);
+        } else if (userId != null && userId.equals(requestorId)) {
+            // Case: Salesman or Admin with no org yet, but requesting their OWN deals
+            deals = dealRepository.findByUser_Id(requestorId);
         } else {
-            return java.util.Collections.emptyList();
+            // Fallback: If request is specifically for a user's deals, and requestor is
+            // that user, allow it.
+            if (userId != null && userId.equals(requestorId)) {
+                deals = dealRepository.findByUser_Id(requestorId);
+            } else {
+                return java.util.Collections.emptyList();
+            }
         }
 
         // Apply filters (case-insensitive for status and priority)

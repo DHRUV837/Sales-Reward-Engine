@@ -83,7 +83,7 @@ public class SalesPerformanceController {
 
         ResponseEntity<?> permissionCheckResult = checkPermission(requestorId, userId);
         if (permissionCheckResult != null) {
-            return (ResponseEntity<SalesPerformance>) permissionCheckResult;
+            return (ResponseEntity<SalesPerformance>) (ResponseEntity<?>) permissionCheckResult;
         }
 
         return performanceRepository.findByUserId(userId)

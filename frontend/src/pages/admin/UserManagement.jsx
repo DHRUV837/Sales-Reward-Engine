@@ -98,6 +98,7 @@ const UserManagement = () => {
                                         <button
                                             onClick={() => toggleStatus(user.id, user.accountStatus)}
                                             className={`px-3 py-1 rounded text-sm font-medium transition-colors
+                                                ${user.accountStatus === 'ACTIVE'
                                                     ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
                                                     : 'bg-green-50 text-green-600 hover:bg-green-100 border border-green-200'}`}
                                         >
