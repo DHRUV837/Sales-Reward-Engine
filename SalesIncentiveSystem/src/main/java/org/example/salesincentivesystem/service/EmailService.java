@@ -31,34 +31,55 @@ public class EmailService {
             String subject = "Welcome to Sales Reward Engine - Enterprise Edition";
 
             String htmlContent = """
-                        <html>
-                        <body style="font-family: 'Inter', Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f5; padding: 20px;">
-                            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                                <div style="background: linear-gradient(135deg, #4f46e5 0%%, #7c3aed 100%%); padding: 40px 20px; text-align: center;">
-                                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 800;">Sales Reward Engine</h1>
-                                    <p style="color: #e0e7ff; margin-top: 8px; font-size: 16px;">Enterprise Sales Performance Platform</p>
-                                </div>
-                                <div style="padding: 40px 30px;">
-                                    <h2 style="color: #1f2937; margin-top: 0; font-size: 22px; font-weight: 700;">Welcome aboard, %s! 🚀</h2>
-                                    <p style="color: #4b5563; font-size: 16px;">We are thrilled to have you join our enterprise platform. Your workspace has been successfully created and is ready for action.</p>
-                                    <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 16px; margin: 24px 0; border-radius: 4px;">
-                                        <p style="margin: 0; color: #1e40af; font-size: 14px;">
-                                            <strong>Pro Tip:</strong> Start by inviting your sales team and configuring your first incentive policy to see immediate results.
-                                        </p>
-                                    </div>
-                                    <p style="color: #4b5563; font-size: 16px;">You can now access your dashboard to view your incentives, track real-time performance, and manage your deals.</p>
-                                    <div style="margin: 32px 0; text-align: center;">
-                                        <a href="https://ser-frontend-phi.vercel.app/login" style="display: inline-block; background-color: #4f46e5; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); transition: background-color 0.2s;">order: none; border-top: 1px solid #e5e7eb; margin: 32px 0;">
-                                    <p style="color: #6b7280; font-size: 14px;">If you have any questions, our support team is available 24/7.</p>
-                                </div>
-                                <div style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
-                                    <p style="font-size: 12px; color: #9ca3af; margin: 0;">&copy; 2026 Sales Reward Engine. All rights reserved.</p>
-                                </div>
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    </head>
+                    <body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: Arial, sans-serif;">
+                        <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <!-- Header -->
+                            <div style="background: linear-gradient(135deg, #4f46e5 0px, #7c3aed 100px); padding: 40px 20px; text-align: center; color: white;">
+                                <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Sales Reward Engine</h1>
+                                <p style="margin: 8px 0 0 0; font-size: 16px; color: #e0e7ff;">Enterprise Sales Performance Platform</p>
                             </div>
-                        </body>
-                        </html>
+                            
+                            <!-- Content -->
+                            <div style="padding: 40px 30px;">
+                                <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 22px;">Welcome aboard, %s! 🚀</h2>
+                                
+                                <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">We are thrilled to have you join our enterprise platform. Your workspace has been successfully created and is ready for action.</p>
+                                
+                                <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 16px; margin: 24px 0; border-radius: 4px;">
+                                    <p style="margin: 0; color: #1e40af; font-size: 14px;">
+                                        <strong>Pro Tip:</strong> Start by inviting your sales team and configuring your first incentive policy to see immediate results.
+                                    </p>
+                                </div>
+                                
+                                <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">You can now access your dashboard to view your incentives, track real-time performance, and manage your deals.</p>
+                                
+                                <!-- Button -->
+                                <div style="margin: 32px 0; text-align: center;">
+                                    <a href="https://ser-frontend-phi.vercel.app/login" target="_blank" style="display: inline-block; background-color: #4f46e5; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                                        Access Dashboard
+                                    </a>
+                                </div>
+                                
+                                <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 32px 0;">
+                                
+                                <p style="color: #6b7280; font-size: 14px;">If you have any questions, our support team is available 24/7.</p>
+                            </div>
+                            
+                            <!-- Footer -->
+                            <div style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
+                                <p style="font-size: 12px; color: #9ca3af; margin: 0;">© 2026 Sales Reward Engine. All rights reserved.</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
                     """
-                    .formatted(name, frontendUrl);
+                    .formatted(name);
 
             Content content = new Content("text/html", htmlContent);
             Mail mail = new Mail(from, subject, toEmail, content);
