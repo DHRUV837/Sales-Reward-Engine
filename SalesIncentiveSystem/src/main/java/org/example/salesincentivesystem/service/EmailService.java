@@ -48,11 +48,7 @@ public class EmailService {
                                     </div>
                                     <p style="color: #4b5563; font-size: 16px;">You can now access your dashboard to view your incentives, track real-time performance, and manage your deals.</p>
                                     <div style="margin: 32px 0; text-align: center;">
-                                        <a href="%s/login" style="display: inline-block; background-color: #4f46e5; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                                            Access Dashboard
-                                        </a>
-                                    </div>
-                                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 32px 0;">
+                                        <a href="https://ser-frontend-phi.vercel.app/login" style="display: inline-block; background-color: #4f46e5; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); transition: background-color 0.2s;">order: none; border-top: 1px solid #e5e7eb; margin: 32px 0;">
                                     <p style="color: #6b7280; font-size: 14px;">If you have any questions, our support team is available 24/7.</p>
                                 </div>
                                 <div style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
