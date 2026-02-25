@@ -9,7 +9,7 @@ const MissionWidget = () => {
     const { auth } = useAuth();
     const [isExpanded, setIsExpanded] = useState(true);
 
-    if (!showChecklist) return null;
+    if (!showChecklist || !auth?.user) return null;
 
     const role = auth?.user?.role || "SALES";
 
