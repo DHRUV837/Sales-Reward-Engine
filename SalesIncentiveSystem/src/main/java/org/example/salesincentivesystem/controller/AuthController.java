@@ -210,6 +210,7 @@ public class AuthController {
         public ResponseEntity<?> completeInvite(@RequestBody Map<String, String> body) {
                 String token = body.get("token");
                 String password = body.get("password");
+                String name = body.get("name");
 
                 try {
                         org.example.salesincentivesystem.entity.Invitation invite = invitationService
@@ -220,8 +221,9 @@ public class AuthController {
                                 return ResponseEntity.badRequest().body("User already registered with this email");
                         }
 
-                        // Create SALES User
-                        User newUser = new User(email, password, "SALES", "Sales Executive");
+                        // Create SALES User with the provided name or default to "Sales Executive"
+                        String userName = (name != null && !name.trim().isEmpty()) ? name.trim() : "Sales Executive";
+                        User newUser = new User(email, password, "SALES", userName);
                         newUser.setOnboardingCompleted(false);
 
                         // Inherit Organization from Inviter (Admin)
