@@ -1,442 +1,431 @@
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
 import {
-  ArrowRight,
-  Shield,
-  TrendingUp,
-  Zap,
-  Target,
-  CheckCircle2,
-  Globe,
-  ChevronRight,
-  Layout,
-  PieChart,
-  Award,
-  Briefcase,
-  Layers,
-  Users,
-  BarChart3,
-  Smartphone,
-  CreditCard,
-  Lock,
-  Settings,
-  FileCheck,
-  Trophy,
-  Sparkles,
-  Command,
-  Activity,
-  Cpu
+  Zap, Lock, PlayCircle, Cpu, ShieldCheck, Network,
+  Activity, Database, Code2, X, Workflow, Orbit,
+  Globe, LineChart, Sparkles, Layers
 } from 'lucide-react';
+import AppIcon from '../components/common/AppIcon';
+
+// --- EYE-PLEASING BACKGROUND (Aurora Mesh) ---
+const AuroraBackground = () => (
+  <div className="aurora-container">
+    <div className="aurora-blob bg-blue-500 w-[60vw] h-[60vw] top-[-10%] left-[-10%]" style={{ '--duration': '25s' }} />
+    <div className="aurora-blob bg-violet-600 w-[70vw] h-[70vw] top-[20%] right-[-20%]" style={{ '--duration': '35s', animationDirection: 'reverse' }} />
+    <div className="aurora-blob bg-cyan-400 w-[50vw] h-[50vw] bottom-[-20%] left-[20%]" style={{ '--duration': '30s' }} />
+    <div className="aurora-blob bg-pink-500 w-[40vw] h-[40vw] bottom-[10%] right-[30%] opacity-40" style={{ '--duration': '28s' }} />
+    <div className="absolute inset-0 stars-overlay z-10" />
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#0f172a_100%)] z-20 pointer-events-none opacity-80" />
+  </div>
+);
+
+// --- 3D MOUSE-REACTIVE TILT COMPONENT ---
+const TiltCard = ({ children, className }) => {
+  const ref = useRef(null);
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+
+  const handleMouseMove = (e) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // Calculate rotation (-5 to 5 degrees)
+    const rX = ((mouseY / height) - 0.5) * -10;
+    const rY = ((mouseX / width) - 0.5) * 10;
+
+    setRotateX(rX);
+    setRotateY(rY);
+  };
+
+  const handleMouseLeave = () => {
+    setRotateX(0);
+    setRotateY(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      animate={{ rotateX, rotateY }}
+      transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.5 }}
+      style={{ perspective: 1000 }}
+      className={`relative ${className}`}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// --- VIBRANT & ADVANCED HOLOGRAPHIC GUIDE ---
+const ElegantGuide = ({ isOpen, onClose }) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+          animate={{ opacity: 1, backdropFilter: "blur(30px)" }}
+          exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+          className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-8 bg-[#0f172a]/60"
+        >
+          <motion.div
+            initial={{ scale: 0.9, y: 50, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.9, y: 30, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="w-full max-w-[1200px] hyper-glass p-[2px] relative overflow-visible"
+          >
+            {/* Animated Gradient Border Wrap */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-pink-500 to-cyan-500 rounded-3xl opacity-50 blur-[2px] animate-pulse" />
+
+            <div className="bg-[#0f172a]/95 backdrop-blur-3xl rounded-[23px] relative z-10 p-8 md:p-14 h-full flex flex-col overflow-hidden">
+
+              {/* Massive Ambient Internal Glow */}
+              <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-pink-500/20 to-violet-500/20 blur-[120px] rounded-full pointer-events-none animate-pulse" />
+              <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-tr from-cyan-400/20 to-blue-500/20 blur-[100px] rounded-full pointer-events-none" />
+
+              {/* Header */}
+              <div className="flex justify-between items-center mb-16 relative z-20">
+                <div className="flex items-center gap-6">
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-blue-500 blur-xl opacity-50 group-hover:opacity-100 transition-opacity" />
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/20 shadow-xl backdrop-blur-md relative z-10">
+                      <Orbit className="w-10 h-10 text-cyan-400 animate-[spin_10s_linear_infinite]" />
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-widest text-glow-soft">
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">System</span> Architecture
+                    </h2>
+                    <p className="text-cyan-300 font-mono text-sm uppercase tracking-widest mt-2 flex items-center gap-3">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                      Live Interactive Walkthrough
+                    </p>
+                  </div>
+                </div>
+                <button onClick={onClose} className="p-4 bg-white/5 hover:bg-white/20 hover:scale-110 rounded-full transition-all border border-white/10 group">
+                  <X className="w-8 h-8 text-slate-300 group-hover:text-white" />
+                </button>
+              </div>
+
+              {/* Three Steps */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 relative z-20">
+                {[
+                  {
+                    i: Network, t: "Connect Elements",
+                    d: "Instantly link your existing data streams through our secure API gateways. No coding required.",
+                    color: "from-blue-400 to-cyan-400", bg: "bg-blue-500/10", borderHover: "group-hover:border-cyan-400/50"
+                  },
+                  {
+                    i: Layers, t: "Compile Logic",
+                    d: "Use the visual builder to map out complex incentive structures, tiers, and multi-variable rules.",
+                    color: "from-violet-400 to-pink-400", bg: "bg-violet-500/10", borderHover: "group-hover:border-pink-400/50"
+                  },
+                  {
+                    i: Activity, t: "Execute & Track",
+                    d: "Publish your live incentive engine and monitor real-time performance across your entire organization.",
+                    color: "from-emerald-400 to-teal-400", bg: "bg-emerald-500/10", borderHover: "group-hover:border-teal-400/50"
+                  }
+                ].map((step, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 + (idx * 0.15) }}
+                    className={`bg-white/5 p-8 rounded-[2rem] border border-white/10 transition-all duration-300 group hover:-translate-y-2 hover:bg-white/10 ${step.borderHover} relative overflow-hidden`}
+                  >
+                    {/* Hover Glow Background */}
+                    <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500 z-0" style={{ backgroundImage: `var(--tw-gradient-stops)` }} />
+
+                    <div className="relative z-10">
+                      <div className={`p-4 ${step.bg} rounded-2xl w-max mb-8 border border-white/10 group-hover:scale-110 transition-transform`}>
+                        <step.i className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className={`text-2xl font-black uppercase tracking-wider mb-4 text-transparent bg-clip-text bg-gradient-to-r ${step.color}`}>
+                        {step.t}
+                      </h3>
+                      <p className="text-slate-300 leading-relaxed font-bold text-lg">{step.d}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Footer Button */}
+              <div className="flex justify-center mt-auto relative z-20">
+                <button onClick={onClose} className="btn-vibrant px-16 py-6 text-xl tracking-[0.2em] shadow-[0_0_40px_rgba(59,130,246,0.3)] hover:shadow-[0_0_60px_rgba(59,130,246,0.5)]">
+                  Activate Sequence & Return
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+
+// --- ADVANCED ASYMMETRICAL BENTO BOX FEATURES ---
+const FeaturesSection = () => {
+  return (
+    <section className="px-6 py-40 relative z-20 max-w-[1400px] mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        className="text-center mb-24"
+      >
+        <h2 className="text-5xl md:text-7xl font-black uppercase text-glow-soft mb-6">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-violet-400 to-cyan-400">
+            Unrivaled Advanced Features.
+          </span>
+        </h2>
+        <p className="text-xl md:text-2xl text-slate-300 font-bold max-w-4xl mx-auto uppercase tracking-wide opacity-80">
+          We rebuilt the concept of incentive software from the absolute foundation, engineering a masterpiece of computational perfection.
+        </p>
+      </motion.div>
+
+      {/* Bento Grid Container */}
+      <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-3 gap-6 auto-rows-[400px]">
+
+        {/* 1. WIDE CARD: Quantum Sync (Spans 2 columns) */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          className="md:col-span-2 md:row-span-1 hyper-glass p-10 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500 flex flex-col justify-between"
+        >
+          <div className="absolute top-[-50%] right-[-10%] w-[500px] h-[500px] border-[40px] border-blue-500/10 rounded-full blur-[10px] group-hover:border-blue-500/30 transition-colors duration-700" />
+          <div className="absolute top-[-30%] right-[10%] w-[300px] h-[300px] border-[2px] border-dashed border-cyan-400/20 rounded-full animate-[spin_40s_linear_infinite]" />
+
+          <div className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(56,189,248,0.5)]">
+            <Network className="w-8 h-8 text-white" />
+          </div>
+          <div className="relative z-10 max-w-lg">
+            <h3 className="text-4xl font-black text-white uppercase tracking-widest mb-4">Quantum Sync Engine</h3>
+            <p className="text-slate-300 text-lg leading-relaxed font-bold">
+              Achieve instantaneous data harmony. Connect unlimited CRM sources and bespoke data pipelines via our zero-latency API gateways.
+            </p>
+          </div>
+        </motion.div>
+
+        {/* 2. TALL CARD: Neural Logic (Spans 2 rows) */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+          className="md:col-span-1 md:row-span-2 hyper-glass p-10 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500 flex flex-col"
+        >
+          <div className="absolute bottom-[-10%] left-[-20%] w-[400px] h-[400px] bg-gradient-to-t from-violet-600/30 to-fuchsia-500/10 rounded-full blur-[50px] group-hover:opacity-100 transition-opacity duration-700" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px] [mask-image:radial-gradient(ellipse_at_center,black_50%,transparent_100%)]" />
+
+          <div className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-400 to-fuchsia-400 flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(167,139,250,0.5)]">
+            <Cpu className="w-8 h-8 text-white" />
+          </div>
+          <div className="relative z-10 flex-1">
+            <h3 className="text-3xl font-black text-white uppercase tracking-widest mb-6 border-l-4 border-violet-500 pl-4">Neural Logic Matrix</h3>
+            <p className="text-slate-300 text-lg leading-relaxed font-bold">
+              Transcend basic commission flat-rates. Construct hyper-complex, multi-variable incentive architectures including recursive tiers, team-splits, and time-gated gates using a purely visual interface.
+            </p>
+          </div>
+        </motion.div>
+
+        {/* 3. SQUARE CARD: Immutable Ledger */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+          className="md:col-span-1 md:row-span-1 hyper-glass p-8 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 via-teal-500/0 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="relative z-10 flex flex-col h-full justify-between">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center shadow-lg">
+              <ShieldCheck className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-white uppercase tracking-widest mb-3">Immutable Ledger</h3>
+              <p className="text-slate-300 font-bold leading-relaxed text-sm">
+                Cryptographically secure ledgers ensure zero disputes, total auditability, and perfect historical recall.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 4. SQUARE CARD: Predictive AI */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}
+          className="md:col-span-1 md:row-span-1 hyper-glass p-8 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500"
+        >
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-amber-500/20 blur-[40px] rounded-full group-hover:scale-150 transition-transform duration-700" />
+          <div className="relative z-10 flex flex-col h-full justify-between">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center shadow-lg">
+              <LineChart className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-white uppercase tracking-widest mb-3">Predictive AI</h3>
+              <p className="text-slate-300 font-bold leading-relaxed text-sm">
+                Run trillion-parameter monte-carlo simulations to forecast financial outcomes before deploying policies.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 5. TALL WIDE CARD: Global Currency Routing (Spans 2 columns) */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }}
+          className="md:col-span-2 md:row-span-1 hyper-glass p-10 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500 flex flex-col md:flex-row items-center gap-10"
+        >
+          {/* Abstract Globe Visual */}
+          <div className="w-48 h-48 shrink-0 relative flex items-center justify-center">
+            <div className="absolute inset-0 bg-pink-500/20 rounded-full blur-[30px] group-hover:bg-pink-500/40 transition-colors duration-700" />
+            <Globe className="w-32 h-32 text-pink-400 absolute animate-[spin_20s_linear_infinite]" />
+            <div className="w-40 h-40 border border-white/20 rounded-full absolute border-dashed animate-[spin_15s_linear_infinite_reverse]" />
+            <div className="w-16 h-16 bg-gradient-to-br from-pink-400 to-red-500 rounded-full absolute shadow-[0_0_40px_rgba(244,114,182,0.8)] z-10" />
+          </div>
+
+          <div className="relative z-10">
+            <h3 className="text-4xl font-black text-white uppercase tracking-widest mb-4">Global Currency Routing</h3>
+            <p className="text-slate-300 text-lg leading-relaxed font-bold">
+              Deploy to international teams effortlessly. The engine automatically handles real-time FX conversions, localized tax implications, and multi-territory payout routing intelligently.
+            </p>
+          </div>
+        </motion.div>
+
+        {/* 6. SQUARE CARD: Zero-Latency Dashboard */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.5 }}
+          className="md:col-span-1 md:row-span-1 hyper-glass p-8 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500 flex flex-col justify-between border-t-4 border-t-yellow-400"
+        >
+          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-[0_0_30px_rgba(250,204,21,0.4)] mb-6">
+            <Zap className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h3 className="text-2xl font-black text-white uppercase tracking-widest mb-3">Zero-Latency Speed</h3>
+            <p className="text-slate-300 font-bold leading-relaxed text-sm">
+              Empower your workforce with absolute clarity via ultra-premium, real-time dashboards detailing exact earnings velocity.
+            </p>
+          </div>
+        </motion.div>
+
+      </div>
+    </section>
+  );
+};
+
+
+// --- MAIN APPLICATION LANDING PAGE ---
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const { auth } = useAuth();
+  const [guideOpen, setGuideOpen] = useState(false);
   const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.9]);
 
-  const handleGetStarted = () => {
-    navigate('/register');
-  };
-
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const workflowSteps = [
-    {
-      id: 1,
-      title: "Smart Configuration",
-      description: "Define complex multi-tier rules with our AI-assisted policy builder.",
-      icon: Settings,
-      color: "text-cyan-400",
-      bg: "bg-cyan-500/10",
-      border: "border-cyan-500/20"
-    },
-    {
-      id: 2,
-      title: "Automated Tracking",
-      description: "Real-time deal ingestion from CRM with instant validation.",
-      icon: Activity,
-      color: "text-indigo-400",
-      bg: "bg-indigo-500/10",
-      border: "border-indigo-500/20"
-    },
-    {
-      id: 3,
-      title: "Precision Engine",
-      description: "Proprietary calculation engine ensuring zero-error payouts.",
-      icon: Cpu,
-      color: "text-purple-400",
-      bg: "bg-purple-500/10",
-      border: "border-purple-500/20"
-    },
-    {
-      id: 4,
-      title: "Instant Payouts",
-      description: "Approve workflow-triggered payments directly to reps.",
-      icon: Sparkles,
-      color: "text-emerald-400",
-      bg: "bg-emerald-500/10",
-      border: "border-emerald-500/20"
-    }
-  ];
-
-  const partners = [
-    "Salesforce", "HubSpot", "Stripe", "Workday", "Snowflake", "AWS"
-  ];
+  const handleGetStarted = () => navigate('/register');
+  const handleSignIn = () => navigate('/login');
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-cyan-500/30 font-sans overflow-x-hidden">
-      {/* Animated Mesh Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] rounded-full bg-cyan-600/10 blur-[120px] animate-glow-pulse" />
-        <div className="absolute top-[20%] right-[-5%] w-[50%] h-[60%] rounded-full bg-purple-600/10 blur-[140px] animate-glow-pulse animation-delay-2000" />
-        <div className="absolute bottom-[-10%] left-[20%] w-[60%] h-[50%] rounded-full bg-indigo-600/10 blur-[130px] animate-glow-pulse animation-delay-4000" />
+    <div className="min-h-screen bg-[#0f172a] text-slate-100 font-sans overflow-x-hidden relative selection:bg-cyan-500/40">
 
-        {/* Modern Grid Mask */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_0%,#000_10%,transparent_100%)]"></div>
-      </div>
+      <AuroraBackground />
 
-      {/* Glass Navbar */}
-      <motion.nav
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#020617]/40 backdrop-blur-2xl"
-      >
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:scale-110 transition-all duration-500">
-              <Zap className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-white">
-              SalesReward<span className="text-cyan-400">.</span>
-            </span>
-          </div>
-
-          <div className="hidden md:flex items-center gap-10">
-            {['Solutions', 'Features', 'Pricing', 'Resources'].map((item) => (
-              <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-medium text-slate-400 hover:text-white transition-all duration-300 relative group">
-                {item}
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-cyan-400 transition-all group-hover:w-full" />
-              </a>
-            ))}
-            <div className="flex items-center gap-6 ml-4">
-              <button
-                onClick={() => navigate('/login')}
-                className="text-sm font-semibold text-slate-300 hover:text-white transition-colors"
-              >
-                Login
-              </button>
-              <button
-                onClick={handleGetStarted}
-                className="px-6 py-2.5 rounded-full bg-white text-[#020617] text-sm font-bold hover:bg-cyan-50 transition-all shadow-xl hover:shadow-white/10 active:scale-95 border border-white/20"
-              >
-                Get Started
-              </button>
-            </div>
-          </div>
+      {/* --- PREMIUM NAVBAR --- */}
+      <nav className="fixed top-0 left-0 right-0 z-[100] px-8 py-6 flex items-center justify-between border-b border-white/10 bg-white/[0.02] backdrop-blur-2xl">
+        <div className="flex items-center gap-4 cursor-pointer">
+          <AppIcon size="w-10 h-10" />
+          <span className="text-2xl font-black tracking-widest text-white uppercase text-glow-soft hidden sm:block">
+            Sales Reward Engine
+          </span>
         </div>
-      </motion.nav>
+        <div className="flex items-center gap-6">
+          <button onClick={handleSignIn} className="text-sm font-black uppercase tracking-widest text-slate-300 hover:text-white transition-colors">Log In</button>
+          <button onClick={handleGetStarted} className="btn-vibrant px-6 py-2.5 text-xs">Initialize System</button>
+        </div>
+      </nav>
 
-      <main className="relative z-10">
-        {/* Dynamic Hero Section */}
-        <section className="relative pt-48 pb-32 px-6 lg:px-8 overflow-hidden">
-          <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
+      <main className="relative z-30 pt-32">
+
+        {/* --- 3D INTERACTIVE HERO --- */}
+        <motion.section
+          className="min-h-[90vh] flex flex-col items-center justify-center px-6 relative"
+        >
+          {/* Mouse-Reactive Glass Panel containing the core hero content */}
+          <TiltCard className="max-w-7xl mx-auto w-full text-center relative z-20">
+
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/5 text-cyan-300 text-xs font-semibold mb-10 tracking-wide"
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="py-16 md:py-24"
             >
-              <Command className="w-3.5 h-3.5" />
-              INTRODUCING THE NEXT GENERATION OF INCENTIVES
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-6xl sm:text-8xl lg:text-9xl font-black tracking-tighter mb-8 leading-[0.95] text-white"
-            >
-              Scale with <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-400 animate-gradient-x">
-                Infinite Revenue
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="max-w-2xl text-xl text-slate-400 mb-12 leading-relaxed"
-            >
-              The advanced enterprise engine designed to automate, optimize, and supercharge your sales performance with math-perfect accuracy.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto"
-            >
-              <button
-                onClick={handleGetStarted}
-                className="group relative px-10 py-5 bg-cyan-500 hover:bg-cyan-400 text-[#020617] rounded-full font-black text-lg transition-all hover:scale-105 active:scale-95 shadow-[0_0_50px_-10px_rgba(6,182,212,0.5)]"
-              >
-                Start Transacting Free
-                <ArrowRight className="inline-block ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button className="px-10 py-5 bg-white/5 hover:bg-white/10 text-white rounded-full font-bold text-lg border border-white/10 backdrop-blur-md transition-all">
-                Watch Demo
-              </button>
-            </motion.div>
-
-            {/* Trust Bar */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8, duration: 1 }}
-              className="mt-24 w-full"
-            >
-              <p className="text-xs font-bold tracking-[0.3em] uppercase text-slate-500 mb-8">Powering Infrastructure for</p>
-              <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-40 grayscale group hover:grayscale-0 transition-all duration-700">
-                {partners.map(p => (
-                  <span key={p} className="text-2xl font-black tracking-tighter hover:text-cyan-400 transition-colors cursor-default">{p}</span>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Hero Visualization */}
-          <motion.div
-            style={{ opacity, scale }}
-            className="max-w-7xl mx-auto mt-32 relative"
-          >
-            <div className="enterprise-glass rounded-3xl p-3 md:p-6 shadow-2xl relative z-10 border border-white/10">
-              <div className="rounded-2xl bg-[#0b1222]/80 overflow-hidden aspect-video border border-white/5 relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
-                {/* Dashboard Mock Content */}
-                <div className="p-8 h-full flex flex-col gap-8">
-                  <div className="flex justify-between items-center">
-                    <div className="space-y-2">
-                      <div className="h-2 w-24 bg-white/10 rounded-full" />
-                      <div className="h-6 w-48 bg-white/20 rounded-lg" />
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10" />
-                      <div className="h-10 w-10 rounded-xl bg-cyan-500 shadow-lg shadow-cyan-500/20" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="h-24 rounded-2xl bg-white/5 border border-white/5 p-4 animate-shimmer">
-                        <div className="h-2 w-16 bg-white/10 rounded-full mb-2" />
-                        <div className="h-4 w-32 bg-white/20 rounded-lg" />
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex-1 rounded-2xl bg-[#020617] border border-white/5 p-6 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/10 to-transparent" />
-                    <div className="w-full h-full flex items-end gap-1">
-                      {Array.from({ length: 48 }).map((_, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ height: 0 }}
-                          animate={{ height: `${Math.random() * 80 + 20}%` }}
-                          transition={{ repeat: Infinity, duration: 2 + Math.random() * 2, repeatType: 'reverse' }}
-                          className="flex-1 bg-cyan-500/40 rounded-t-sm"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Absolute Widgets */}
-            <motion.div
-              animate={{ y: [0, -20, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -right-10 top-20 hidden lg:block"
-            >
-              <div className="enterprise-glass p-5 rounded-2xl w-64 shadow-2xl border border-cyan-500/30">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold">Earnings Paced</div>
-                    <div className="text-[10px] text-slate-500 tracking-widest uppercase">+28% vs Target</div>
-                  </div>
-                </div>
-                <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full bg-cyan-400 w-[75%]" />
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        </section>
-
-        {/* Bento Feature Grid */}
-        <section id="features" className="py-32 px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-5xl font-black mb-6">Engineered for Complexity</h2>
-              <p className="text-slate-400 max-w-xl mx-auto">Native capabilities that handle everything from basic commissions to enterprise-grade territories.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-6 h-auto md:h-[600px]">
-              <motion.div
-                whileHover={{ y: -5 }}
-                className="md:col-span-3 enterprise-glass rounded-[2rem] p-10 flex flex-col justify-end group transition-all"
-              >
-                <div className="mb-auto p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 w-fit">
-                  <Shield className="w-8 h-8 text-cyan-400" />
-                </div>
-                <h3 className="text-3xl font-bold mb-4">Enterprise Security</h3>
-                <p className="text-slate-400">SOC2 Type II compliant with granular audit trails for every single transaction and adjustment.</p>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ y: -5 }}
-                className="md:col-span-3 enterprise-glass rounded-[2rem] p-10 flex flex-col justify-end overflow-hidden relative"
-              >
-                <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-100 transition-opacity">
-                  <Activity className="w-32 h-32 text-indigo-500" />
-                </div>
-                <h3 className="text-3xl font-bold mb-4">Real-time Pulse</h3>
-                <p className="text-slate-400">Sync with any modern CRM and get sub-second updates on quota attainment and earnings.</p>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ y: -5 }}
-                className="md:col-span-2 enterprise-glass rounded-[2rem] p-8"
-              >
-                <PieChart className="w-8 h-8 text-purple-400 mb-6" />
-                <h3 className="text-xl font-bold mb-2">Complex Splits</h3>
-                <p className="text-sm text-slate-500">Easily manage overlays, shared deals, and multi-currency payouts.</p>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ y: -5 }}
-                className="md:col-span-2 enterprise-glass rounded-[2rem] p-8"
-              >
-                <Trophy className="w-8 h-8 text-amber-400 mb-6" />
-                <h3 className="text-xl font-bold mb-2">Gamification</h3>
-                <p className="text-sm text-slate-500">Live leaderboards and automated milestone celebrations.</p>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ y: -5 }}
-                className="md:col-span-2 enterprise-glass rounded-[2rem] p-8"
-              >
-                <Globe className="w-8 h-8 text-emerald-400 mb-6" />
-                <h3 className="text-xl font-bold mb-2">Global Scale</h3>
-                <p className="text-sm text-slate-500">Payout to any country with automated tax localization engine.</p>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* Dynamic Workflow Section */}
-        <section className="py-32 bg-white/[0.02] border-y border-white/5 relative">
-          <div className="max-w-7xl mx-auto px-6 overflow-hidden">
-            <div className="flex flex-col lg:flex-row items-center gap-20">
-              <div className="flex-1 text-center lg:text-left">
-                <span className="text-cyan-400 font-bold tracking-[0.2em] text-xs uppercase mb-6 block">Unified Workflow</span>
-                <h2 className="text-4xl md:text-6xl font-black mb-8">Deploy in minutes, <br />Scale for years.</h2>
-                <div className="space-y-6">
-                  {workflowSteps.map((step, i) => (
-                    <div key={i} className="flex items-center gap-4 group cursor-default">
-                      <div className={`w-12 h-12 rounded-xl border ${step.border} ${step.bg} flex items-center justify-center shrink-0 group-hover:scale-110 transition-all`}>
-                        <step.icon className={`w-6 h-6 ${step.color}`} />
-                      </div>
-                      <div className="text-lg font-bold group-hover:text-cyan-400 transition-colors">{step.title}</div>
-                    </div>
-                  ))}
-                </div>
+              {/* Refined Badge */}
+              <div className="inline-flex items-center gap-3 px-6 py-2 mb-12 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-white font-black text-sm uppercase tracking-widest shadow-xl">
+                <Sparkles className="w-4 h-4 text-cyan-400" />
+                The Benchmark of Enterprise Incentive Software
               </div>
 
-              <div className="flex-1 relative w-full border border-white/10 rounded-3xl p-8 bg-[#0b1222]">
-                <div className="space-y-4">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="h-16 w-full rounded-2xl bg-white/5 border border-white/5 flex items-center px-4 gap-4 animate-shimmer">
-                      <div className="w-10 h-10 rounded-full bg-white/10" />
-                      <div className="space-y-2">
-                        <div className="h-2 w-32 bg-white/20 rounded-full" />
-                        <div className="h-2 w-24 bg-white/10 rounded-full" />
-                      </div>
-                      <div className="ml-auto w-20 h-6 bg-cyan-500/20 rounded-full border border-cyan-500/30" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+              {/* Eye-Pleasing Continuous Gradient Text */}
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[7.5rem] font-black uppercase leading-[0.9] tracking-tighter mb-8 text-glow-soft">
+                <span className="text-white">Orchestrate</span> <br />
+                <span className="text-gradient-vibrant drop-shadow-2xl">
+                  Flawless Growth.
+                </span>
+              </h1>
 
-        {/* High-Impact CTA */}
-        <section className="py-40 px-6">
-          <div className="max-w-5xl mx-auto relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 rounded-[3rem] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-700" />
-            <div className="relative enterprise-glass rounded-[3rem] p-12 md:p-24 text-center border-white/20 overflow-hidden">
-              <div className="absolute top-0 right-0 p-12 opacity-5 translate-x-1/2 -translate-y-1/2">
-                <Zap className="w-96 h-96" />
-              </div>
+              <p className="text-lg md:text-xl text-slate-200 font-bold uppercase tracking-widest max-w-4xl mx-auto mb-16 leading-relaxed text-balance">
+                Design, execute, and scale the most complex commission architectures imaginable through an interface of absolute pure clarity.
+              </p>
 
-              <h2 className="text-4xl md:text-7xl font-black mb-10 tracking-tight text-white leading-tight">
-                Start automating your <br /> revenue engine today.
-              </h2>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                <button onClick={handleGetStarted} className="px-12 py-6 bg-white text-[#020617] rounded-full font-black text-xl hover:bg-cyan-50 shadow-2xl transition-all hover:scale-105 active:scale-95">
-                  Create Account
+              {/* --- ELEGANT CTAS --- */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-12 w-full max-w-4xl mx-auto">
+
+                {/* 1. Get Started (Vibrant) */}
+                <button
+                  onClick={handleGetStarted}
+                  className="btn-vibrant px-8 py-4 group min-w-[200px]"
+                >
+                  <Zap className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                  <span className="text-lg mt-0.5">Get Started</span>
                 </button>
-                <button className="px-12 py-6 bg-white/5 border border-white/20 rounded-full font-black text-xl hover:bg-white/10 text-white backdrop-blur-3xl transition-all">
-                  Talk to Sales
+
+                {/* 2. Sign In (Glass) */}
+                <button
+                  onClick={handleSignIn}
+                  className="btn-glass-outline px-8 py-4 group min-w-[200px]"
+                >
+                  <Lock className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                  <span className="text-lg mt-0.5">Sign In</span>
                 </button>
+
+                {/* 3. How to Use (Glass) */}
+                <button
+                  onClick={() => setGuideOpen(true)}
+                  className="btn-glass-outline px-8 py-4 group min-w-[200px]"
+                >
+                  <PlayCircle className="w-6 h-6 group-hover:scale-110 transition-transform text-cyan-400" />
+                  <span className="text-lg mt-0.5 text-cyan-400">How It Works</span>
+                </button>
+
               </div>
-              <p className="mt-12 text-slate-500 font-medium">Join 2,500+ world-class organizations building on SalesReward.</p>
-            </div>
-          </div>
-        </section>
+            </motion.div>
+          </TiltCard>
+        </motion.section>
+
+        {/* --- MASSIVELY EXPANDED ADVANCED FEATURES SECTION --- */}
+        <FeaturesSection />
+
       </main>
 
-      <footer className="py-20 px-6 border-t border-white/5 relative z-10 bg-[#020617]">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
-          <div className="flex items-center gap-3">
-            <Zap className="w-8 h-8 text-cyan-400" />
-            <span className="text-2xl font-black tracking-tighter text-white">SalesReward.</span>
-          </div>
+      <ElegantGuide isOpen={guideOpen} onClose={() => setGuideOpen(false)} />
 
-          <div className="flex gap-10 text-sm font-medium text-slate-500">
-            <a href="#" className="hover:text-cyan-400 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-cyan-400 transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-cyan-400 transition-colors">Security</a>
-            <a href="#" className="hover:text-cyan-400 transition-colors">Status</a>
+      {/* --- FOOTER --- */}
+      <footer className="py-20 border-t border-white/10 relative z-30 bg-white/[0.02] backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-10">
+          <div className="flex items-center gap-6">
+            <AppIcon size="w-10 h-10" opacity="1" />
+            <span className="text-2xl font-black tracking-widest text-slate-300 uppercase">Sales Reward Engine</span>
           </div>
-
-          <div className="text-slate-600 text-xs font-bold tracking-widest uppercase">
-            &copy; {new Date().getFullYear()} GLOBAL SCALE CORP.
-          </div>
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">
+            Designed for absolute performance.
+          </p>
         </div>
       </footer>
     </div>

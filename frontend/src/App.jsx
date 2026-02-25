@@ -117,6 +117,7 @@ const App = () => {
             element={<LandingPage />}
           />
 
+
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/accept-invite" element={<AcceptInvite />} />
