@@ -38,6 +38,7 @@ const AdminDealDetailPage = () => {
                 payload.comment = reasonOrComment;
             }
 
+            // The api interceptor will automatically skip requestorId for this endpoint
             await api.patch(`/api/deals/${deal.id}/status`, payload);
             fetchDealDetails();
         } catch (err) {

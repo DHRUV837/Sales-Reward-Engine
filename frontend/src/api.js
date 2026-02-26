@@ -6,6 +6,8 @@
  */
 import axios from 'axios';
 
+console.log('✅ [API.JS] - NEW VERSION LOADED - authApi instance created');
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 // Create an axios instance with default config
@@ -19,6 +21,12 @@ const api = axios.create({
 // Add a request interceptor to include requestorId for data isolation
 api.interceptors.request.use((config) => {
     try {
+        // DO NOT add requestorId for PATCH requests to deal status endpoint
+        if (config.method === 'patch' && config.url.includes('/api/deals/') && config.url.includes('/status')) {
+            console.log('[API Interceptor] Skipping requestorId for status update:', config.url);
+            return config;
+        }
+
         const authData = localStorage.getItem('auth');
         if (authData) {
             const auth = JSON.parse(authData);
@@ -41,5 +49,49 @@ api.interceptors.request.use((config) => {
     return Promise.reject(error);
 });
 
+// Create a separate axios instance for requests that need auth but NO requestorId
+const authApi = axios.create({
+    baseURL: API_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+// Add only auth header, no requestorId
+authApi.interceptors.request.use((config) => {
+    try {
+        const authData = localStorage.getItem('auth');
+        if (authData) {
+            const auth = JSON.parse(authData);
+            const token = auth?.token;
+            const role = auth?.role;
+            const userId = auth?.user?.id;
+
+            console.log('[authApi] Token found:', !!token);
+            console.log('[authApi] Role:', role);
+            console.log('[authApi] UserId:', userId);
+
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+            
+            // Add role and userId headers for backend authorization
+            if (role) {
+                config.headers['X-User-Role'] = role;
+            }
+            if (userId) {
+                config.headers['X-User-Id'] = userId;
+            }
+        } else {
+            console.log('[authApi] WARNING: No auth data found in localStorage');
+        }
+    } catch (error) {
+        console.error('Error in authApi interceptor:', error);
+    }
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
 export default api;
-export { API_URL };
+export { API_URL, authApi };

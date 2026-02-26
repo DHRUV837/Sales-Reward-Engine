@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import AppIcon from "../components/common/AppIcon";
 import api, { API_URL } from "../api";
+import axios from "axios";
 import { ArrowRight, Lock, User, CheckCircle } from "lucide-react";
 
 const AcceptInvite = () => {
@@ -11,6 +12,7 @@ const AcceptInvite = () => {
 
     const [status, setStatus] = useState("verifying"); // verifying, valid, invalid, success
     const [inviteData, setInviteData] = useState(null);
+    const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
@@ -39,14 +41,19 @@ const AcceptInvite = () => {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        if (!name.trim()) {
+            setError("Name is required");
+            return;
+        }
         if (password !== confirmPassword) {
             setError("Passwords do not match");
             return;
         }
 
         try {
-            await api.post("/api/auth/complete-invite", {
+            await axios.post(`${API_URL}/api/auth/complete-invite`, {
                 token,
+                name: name.trim(),
                 password
             });
             setStatus("success");
@@ -121,6 +128,23 @@ const AcceptInvite = () => {
                                     {error}
                                 </div>
                             )}
+
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Full Name</label>
+                                <div className="relative">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                                        <User className="w-5 h-5 text-slate-500" />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter your full name"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="w-full pl-12 pr-4 py-3 bg-slate-950/50 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                                        required
+                                    />
+                                </div>
+                            </div>
 
                             <div className="space-y-1.5">
                                 <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Work Email</label>
