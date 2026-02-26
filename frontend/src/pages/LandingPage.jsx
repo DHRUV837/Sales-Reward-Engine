@@ -1,607 +1,431 @@
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
 import {
-  ArrowRight,
-  Shield,
-  TrendingUp,
-  Zap,
-  Target,
-  CheckCircle2,
-  Globe,
-  ChevronRight,
-  Layout,
-  PieChart,
-  Award,
-  Briefcase,
-  Layers,
-  Users,
-  BarChart3,
-  Smartphone,
-  CreditCard,
-  Lock,
-  Settings,
-  FileCheck,
-  Trophy
+  Zap, Lock, PlayCircle, Cpu, ShieldCheck, Network,
+  Activity, Database, Code2, X, Workflow, Orbit,
+  Globe, LineChart, Sparkles, Layers
 } from 'lucide-react';
+import AppIcon from '../components/common/AppIcon';
+
+// --- EYE-PLEASING BACKGROUND (Aurora Mesh) ---
+const AuroraBackground = () => (
+  <div className="aurora-container">
+    <div className="aurora-blob bg-blue-500 w-[60vw] h-[60vw] top-[-10%] left-[-10%]" style={{ '--duration': '25s' }} />
+    <div className="aurora-blob bg-violet-600 w-[70vw] h-[70vw] top-[20%] right-[-20%]" style={{ '--duration': '35s', animationDirection: 'reverse' }} />
+    <div className="aurora-blob bg-cyan-400 w-[50vw] h-[50vw] bottom-[-20%] left-[20%]" style={{ '--duration': '30s' }} />
+    <div className="aurora-blob bg-pink-500 w-[40vw] h-[40vw] bottom-[10%] right-[30%] opacity-40" style={{ '--duration': '28s' }} />
+    <div className="absolute inset-0 stars-overlay z-10" />
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#0f172a_100%)] z-20 pointer-events-none opacity-80" />
+  </div>
+);
+
+// --- 3D MOUSE-REACTIVE TILT COMPONENT ---
+const TiltCard = ({ children, className }) => {
+  const ref = useRef(null);
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+
+  const handleMouseMove = (e) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // Calculate rotation (-5 to 5 degrees)
+    const rX = ((mouseY / height) - 0.5) * -10;
+    const rY = ((mouseX / width) - 0.5) * 10;
+
+    setRotateX(rX);
+    setRotateY(rY);
+  };
+
+  const handleMouseLeave = () => {
+    setRotateX(0);
+    setRotateY(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      animate={{ rotateX, rotateY }}
+      transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.5 }}
+      style={{ perspective: 1000 }}
+      className={`relative ${className}`}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// --- VIBRANT & ADVANCED HOLOGRAPHIC GUIDE ---
+const ElegantGuide = ({ isOpen, onClose }) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+          animate={{ opacity: 1, backdropFilter: "blur(30px)" }}
+          exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+          className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-8 bg-[#0f172a]/60"
+        >
+          <motion.div
+            initial={{ scale: 0.9, y: 50, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.9, y: 30, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="w-full max-w-[1200px] hyper-glass p-[2px] relative overflow-visible"
+          >
+            {/* Animated Gradient Border Wrap */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-pink-500 to-cyan-500 rounded-3xl opacity-50 blur-[2px] animate-pulse" />
+
+            <div className="bg-[#0f172a]/95 backdrop-blur-3xl rounded-[23px] relative z-10 p-8 md:p-14 h-full flex flex-col overflow-hidden">
+
+              {/* Massive Ambient Internal Glow */}
+              <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-pink-500/20 to-violet-500/20 blur-[120px] rounded-full pointer-events-none animate-pulse" />
+              <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-tr from-cyan-400/20 to-blue-500/20 blur-[100px] rounded-full pointer-events-none" />
+
+              {/* Header */}
+              <div className="flex justify-between items-center mb-16 relative z-20">
+                <div className="flex items-center gap-6">
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-blue-500 blur-xl opacity-50 group-hover:opacity-100 transition-opacity" />
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/20 shadow-xl backdrop-blur-md relative z-10">
+                      <Orbit className="w-10 h-10 text-cyan-400 animate-[spin_10s_linear_infinite]" />
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-widest text-glow-soft">
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">System</span> Architecture
+                    </h2>
+                    <p className="text-cyan-300 font-mono text-sm uppercase tracking-widest mt-2 flex items-center gap-3">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                      Live Interactive Walkthrough
+                    </p>
+                  </div>
+                </div>
+                <button onClick={onClose} className="p-4 bg-white/5 hover:bg-white/20 hover:scale-110 rounded-full transition-all border border-white/10 group">
+                  <X className="w-8 h-8 text-slate-300 group-hover:text-white" />
+                </button>
+              </div>
+
+              {/* Three Steps */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 relative z-20">
+                {[
+                  {
+                    i: Network, t: "Connect Elements",
+                    d: "Instantly link your existing data streams through our secure API gateways. No coding required.",
+                    color: "from-blue-400 to-cyan-400", bg: "bg-blue-500/10", borderHover: "group-hover:border-cyan-400/50"
+                  },
+                  {
+                    i: Layers, t: "Compile Logic",
+                    d: "Use the visual builder to map out complex incentive structures, tiers, and multi-variable rules.",
+                    color: "from-violet-400 to-pink-400", bg: "bg-violet-500/10", borderHover: "group-hover:border-pink-400/50"
+                  },
+                  {
+                    i: Activity, t: "Execute & Track",
+                    d: "Publish your live incentive engine and monitor real-time performance across your entire organization.",
+                    color: "from-emerald-400 to-teal-400", bg: "bg-emerald-500/10", borderHover: "group-hover:border-teal-400/50"
+                  }
+                ].map((step, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 + (idx * 0.15) }}
+                    className={`bg-white/5 p-8 rounded-[2rem] border border-white/10 transition-all duration-300 group hover:-translate-y-2 hover:bg-white/10 ${step.borderHover} relative overflow-hidden`}
+                  >
+                    {/* Hover Glow Background */}
+                    <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500 z-0" style={{ backgroundImage: `var(--tw-gradient-stops)` }} />
+
+                    <div className="relative z-10">
+                      <div className={`p-4 ${step.bg} rounded-2xl w-max mb-8 border border-white/10 group-hover:scale-110 transition-transform`}>
+                        <step.i className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className={`text-2xl font-black uppercase tracking-wider mb-4 text-transparent bg-clip-text bg-gradient-to-r ${step.color}`}>
+                        {step.t}
+                      </h3>
+                      <p className="text-slate-300 leading-relaxed font-bold text-lg">{step.d}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Footer Button */}
+              <div className="flex justify-center mt-auto relative z-20">
+                <button onClick={onClose} className="btn-vibrant px-16 py-6 text-xl tracking-[0.2em] shadow-[0_0_40px_rgba(59,130,246,0.3)] hover:shadow-[0_0_60px_rgba(59,130,246,0.5)]">
+                  Activate Sequence & Return
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+
+// --- ADVANCED ASYMMETRICAL BENTO BOX FEATURES ---
+const FeaturesSection = () => {
+  return (
+    <section className="px-6 py-40 relative z-20 max-w-[1400px] mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        className="text-center mb-24"
+      >
+        <h2 className="text-5xl md:text-7xl font-black uppercase text-glow-soft mb-6">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-violet-400 to-cyan-400">
+            Unrivaled Advanced Features.
+          </span>
+        </h2>
+        <p className="text-xl md:text-2xl text-slate-300 font-bold max-w-4xl mx-auto uppercase tracking-wide opacity-80">
+          We rebuilt the concept of incentive software from the absolute foundation, engineering a masterpiece of computational perfection.
+        </p>
+      </motion.div>
+
+      {/* Bento Grid Container */}
+      <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-3 gap-6 auto-rows-[400px]">
+
+        {/* 1. WIDE CARD: Quantum Sync (Spans 2 columns) */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          className="md:col-span-2 md:row-span-1 hyper-glass p-10 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500 flex flex-col justify-between"
+        >
+          <div className="absolute top-[-50%] right-[-10%] w-[500px] h-[500px] border-[40px] border-blue-500/10 rounded-full blur-[10px] group-hover:border-blue-500/30 transition-colors duration-700" />
+          <div className="absolute top-[-30%] right-[10%] w-[300px] h-[300px] border-[2px] border-dashed border-cyan-400/20 rounded-full animate-[spin_40s_linear_infinite]" />
+
+          <div className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(56,189,248,0.5)]">
+            <Network className="w-8 h-8 text-white" />
+          </div>
+          <div className="relative z-10 max-w-lg">
+            <h3 className="text-4xl font-black text-white uppercase tracking-widest mb-4">Quantum Sync Engine</h3>
+            <p className="text-slate-300 text-lg leading-relaxed font-bold">
+              Achieve instantaneous data harmony. Connect unlimited CRM sources and bespoke data pipelines via our zero-latency API gateways.
+            </p>
+          </div>
+        </motion.div>
+
+        {/* 2. TALL CARD: Neural Logic (Spans 2 rows) */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+          className="md:col-span-1 md:row-span-2 hyper-glass p-10 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500 flex flex-col"
+        >
+          <div className="absolute bottom-[-10%] left-[-20%] w-[400px] h-[400px] bg-gradient-to-t from-violet-600/30 to-fuchsia-500/10 rounded-full blur-[50px] group-hover:opacity-100 transition-opacity duration-700" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px] [mask-image:radial-gradient(ellipse_at_center,black_50%,transparent_100%)]" />
+
+          <div className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-400 to-fuchsia-400 flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(167,139,250,0.5)]">
+            <Cpu className="w-8 h-8 text-white" />
+          </div>
+          <div className="relative z-10 flex-1">
+            <h3 className="text-3xl font-black text-white uppercase tracking-widest mb-6 border-l-4 border-violet-500 pl-4">Neural Logic Matrix</h3>
+            <p className="text-slate-300 text-lg leading-relaxed font-bold">
+              Transcend basic commission flat-rates. Construct hyper-complex, multi-variable incentive architectures including recursive tiers, team-splits, and time-gated gates using a purely visual interface.
+            </p>
+          </div>
+        </motion.div>
+
+        {/* 3. SQUARE CARD: Immutable Ledger */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+          className="md:col-span-1 md:row-span-1 hyper-glass p-8 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 via-teal-500/0 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="relative z-10 flex flex-col h-full justify-between">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center shadow-lg">
+              <ShieldCheck className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-white uppercase tracking-widest mb-3">Immutable Ledger</h3>
+              <p className="text-slate-300 font-bold leading-relaxed text-sm">
+                Cryptographically secure ledgers ensure zero disputes, total auditability, and perfect historical recall.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 4. SQUARE CARD: Predictive AI */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}
+          className="md:col-span-1 md:row-span-1 hyper-glass p-8 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500"
+        >
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-amber-500/20 blur-[40px] rounded-full group-hover:scale-150 transition-transform duration-700" />
+          <div className="relative z-10 flex flex-col h-full justify-between">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center shadow-lg">
+              <LineChart className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-white uppercase tracking-widest mb-3">Predictive AI</h3>
+              <p className="text-slate-300 font-bold leading-relaxed text-sm">
+                Run trillion-parameter monte-carlo simulations to forecast financial outcomes before deploying policies.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 5. TALL WIDE CARD: Global Currency Routing (Spans 2 columns) */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }}
+          className="md:col-span-2 md:row-span-1 hyper-glass p-10 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500 flex flex-col md:flex-row items-center gap-10"
+        >
+          {/* Abstract Globe Visual */}
+          <div className="w-48 h-48 shrink-0 relative flex items-center justify-center">
+            <div className="absolute inset-0 bg-pink-500/20 rounded-full blur-[30px] group-hover:bg-pink-500/40 transition-colors duration-700" />
+            <Globe className="w-32 h-32 text-pink-400 absolute animate-[spin_20s_linear_infinite]" />
+            <div className="w-40 h-40 border border-white/20 rounded-full absolute border-dashed animate-[spin_15s_linear_infinite_reverse]" />
+            <div className="w-16 h-16 bg-gradient-to-br from-pink-400 to-red-500 rounded-full absolute shadow-[0_0_40px_rgba(244,114,182,0.8)] z-10" />
+          </div>
+
+          <div className="relative z-10">
+            <h3 className="text-4xl font-black text-white uppercase tracking-widest mb-4">Global Currency Routing</h3>
+            <p className="text-slate-300 text-lg leading-relaxed font-bold">
+              Deploy to international teams effortlessly. The engine automatically handles real-time FX conversions, localized tax implications, and multi-territory payout routing intelligently.
+            </p>
+          </div>
+        </motion.div>
+
+        {/* 6. SQUARE CARD: Zero-Latency Dashboard */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.5 }}
+          className="md:col-span-1 md:row-span-1 hyper-glass p-8 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500 flex flex-col justify-between border-t-4 border-t-yellow-400"
+        >
+          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-[0_0_30px_rgba(250,204,21,0.4)] mb-6">
+            <Zap className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h3 className="text-2xl font-black text-white uppercase tracking-widest mb-3">Zero-Latency Speed</h3>
+            <p className="text-slate-300 font-bold leading-relaxed text-sm">
+              Empower your workforce with absolute clarity via ultra-premium, real-time dashboards detailing exact earnings velocity.
+            </p>
+          </div>
+        </motion.div>
+
+      </div>
+    </section>
+  );
+};
+
+
+// --- MAIN APPLICATION LANDING PAGE ---
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const { auth } = useAuth();
+  const [guideOpen, setGuideOpen] = useState(false);
   const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
 
-  const handleGetStarted = () => {
-    navigate('/register');
-  };
-
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  };
-
-  // Steps for "How to Use" section
-  const workflowSteps = [
-    {
-      id: 1,
-      title: "Configure Policy",
-      description: "Admins define incentive rules, quotas, and tiers in minutes.",
-      icon: Settings,
-      color: "text-blue-400",
-      bg: "bg-blue-400/10",
-      border: "border-blue-400/20"
-    },
-    {
-      id: 2,
-      title: "Track Sales",
-      description: "Reps close deals that are automatically tracked and verified.",
-      icon: TrendingUp,
-      color: "text-indigo-400",
-      bg: "bg-indigo-400/10",
-      border: "border-indigo-400/20"
-    },
-    {
-      id: 3,
-      title: "Calculate Earnings",
-      description: "Our engine processes commissions instantly with 100% accuracy.",
-      icon: PieChart,
-      color: "text-violet-400",
-      bg: "bg-violet-400/10",
-      border: "border-violet-400/20"
-    },
-    {
-      id: 4,
-      title: "Approve & Payout",
-      description: "Managers approve payouts and reps get paid on time, every time.",
-      icon: CheckCircle2,
-      color: "text-emerald-400",
-      bg: "bg-emerald-400/10",
-      border: "border-emerald-400/20"
-    }
-  ];
+  const handleGetStarted = () => navigate('/register');
+  const handleSignIn = () => navigate('/login');
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-indigo-500/30 font-sans overflow-x-hidden">
-      {/* Dynamic Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-blue-600/10 blur-[130px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-600/10 blur-[130px]" />
-        <motion.div
-          style={{ y }}
-          className="absolute top-[30%] left-[40%] w-[40%] h-[40%] rounded-full bg-violet-600/5 blur-[120px]"
-        />
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-      </div>
+    <div className="min-h-screen bg-[#0f172a] text-slate-100 font-sans overflow-x-hidden relative selection:bg-cyan-500/40">
 
-      {/* Navbar */}
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
-        className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800/50 bg-[#020617]/80 backdrop-blur-xl supports-[backdrop-filter]:bg-[#020617]/60"
-      >
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
-              <Zap className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-              Sales Reward Engine
-            </span>
-          </div>
-          <div className="hidden md:flex items-center gap-8">
-            {['How it Works', 'Integrations', 'Pricing'].map((item) => (
-              <a key={item} href={`#${item.replace(/\s+/g, '-').toLowerCase()}`} className="text-sm font-medium text-slate-400 hover:text-white transition-colors relative group">
-                {item}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 transition-all group-hover:w-full" />
-              </a>
-            ))}
-            <div className="flex items-center gap-4 border-l border-slate-800 pl-8">
-              <button
-                onClick={() => navigate('/login')}
-                className="text-sm font-semibold text-slate-300 hover:text-white transition-colors"
-              >
-                Sign In
-              </button>
-              <button
-                onClick={handleGetStarted}
-                className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 ring-1 ring-white/10"
-              >
-                Get Started
-              </button>
-            </div>
-          </div>
+      <AuroraBackground />
+
+      {/* --- PREMIUM NAVBAR --- */}
+      <nav className="fixed top-0 left-0 right-0 z-[100] px-8 py-6 flex items-center justify-between border-b border-white/10 bg-white/[0.02] backdrop-blur-2xl">
+        <div className="flex items-center gap-4 cursor-pointer">
+          <AppIcon size="w-10 h-10" />
+          <span className="text-2xl font-black tracking-widest text-white uppercase text-glow-soft hidden sm:block">
+            Sales Reward Engine
+          </span>
         </div>
-      </motion.nav>
+        <div className="flex items-center gap-6">
+          <button onClick={handleSignIn} className="text-sm font-black uppercase tracking-widest text-slate-300 hover:text-white transition-colors">Log In</button>
+          <button onClick={handleGetStarted} className="btn-vibrant px-6 py-2.5 text-xs">Initialize System</button>
+        </div>
+      </nav>
 
-      <main className="relative pt-36 pb-20">
-        {/* Hero Section */}
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex flex-col items-center text-center mb-24 relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-medium mb-8 hover:bg-indigo-500/20 transition-colors cursor-default"
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-              </span>
-              v2.0 Now Live: AI-Driven Incentive Modeling
-            </motion.div>
+      <main className="relative z-30 pt-32">
 
-            <motion.h1
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-              className="text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight mb-8 leading-[1.1]"
-            >
-              <span className="block text-white mb-2 drop-shadow-sm">Compensate with</span>
-              <span className="block bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400 animate-gradient-x pb-2">
-                Confidence & Speed
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-              transition={{ delay: 0.2 }}
-              className="max-w-2xl text-lg sm:text-xl text-slate-400 mb-10 leading-relaxed"
-            >
-              The enterprise standard for sales incentive management. Automate complex commission structures, ensure 100% accuracy, and motivate your team in real-time.
-            </motion.p>
+        {/* --- 3D INTERACTIVE HERO --- */}
+        <motion.section
+          className="min-h-[90vh] flex flex-col items-center justify-center px-6 relative"
+        >
+          {/* Mouse-Reactive Glass Panel containing the core hero content */}
+          <TiltCard className="max-w-7xl mx-auto w-full text-center relative z-20">
 
             <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-              transition={{ delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-5 w-full sm:w-auto justify-center"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="py-16 md:py-24"
             >
-              <button
-                onClick={() => window.location.href = 'mailto:sales@salesrewardengine.com'}
-                className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-semibold shadow-[0_0_40px_-10px_rgba(37,99,235,0.5)] transition-all hover:scale-105 active:scale-95 ring-1 ring-white/10"
-              >
-                <span className="flex items-center gap-2">
-                  Schedule Demo
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              {/* Refined Badge */}
+              <div className="inline-flex items-center gap-3 px-6 py-2 mb-12 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-white font-black text-sm uppercase tracking-widest shadow-xl">
+                <Sparkles className="w-4 h-4 text-cyan-400" />
+                The Benchmark of Enterprise Incentive Software
+              </div>
+
+              {/* Eye-Pleasing Continuous Gradient Text */}
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[7.5rem] font-black uppercase leading-[0.9] tracking-tighter mb-8 text-glow-soft">
+                <span className="text-white">Orchestrate</span> <br />
+                <span className="text-gradient-vibrant drop-shadow-2xl">
+                  Flawless Growth.
                 </span>
-                <div className="absolute inset-0 rounded-xl ring-2 ring-white/20 group-hover:ring-white/40 transition-all" />
-              </button>
+              </h1>
 
-              <button
-                onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-8 py-4 bg-slate-900/50 hover:bg-slate-800 text-white rounded-xl font-semibold border border-slate-700 transition-all hover:border-slate-600 block backdrop-blur-sm shadow-lg"
-              >
-                How it Works
-              </button>
-            </motion.div>
-          </div>
-
-          {/* Hero Interface Visualization */}
-          <motion.div
-            initial={{ opacity: 0, y: 60, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: 0.5, duration: 1, type: "spring" }}
-            className="relative w-full max-w-6xl mx-auto mb-32 group"
-          >
-            {/* Main Window */}
-            <div className="relative rounded-2xl bg-[#0f172a] border border-slate-700/50 shadow-2xl overflow-hidden ring-1 ring-white/10">
-              {/* Window Controls */}
-              <div className="h-10 border-b border-slate-800 bg-slate-900/50 flex items-center px-4 gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
-                <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50" />
-                <div className="ml-4 px-3 py-1 bg-slate-800 rounded-md text-[10px] text-slate-500 font-mono flex items-center gap-2">
-                  <Lock className="w-3 h-3" /> app.salesrewardengine.com
-                </div>
-              </div>
-
-              {/* App Content */}
-              <div className="p-6 md:p-8 bg-gradient-to-b from-slate-900 to-[#020617] h-[500px] md:h-[600px] flex gap-6 overflow-hidden">
-                {/* Sidebar Mock */}
-                <div className="hidden md:flex flex-col w-64 gap-2 pr-6 border-r border-slate-800/50">
-                  <div className="h-8 w-32 bg-slate-800/50 rounded-lg mb-8 animate-pulse" />
-                  {[1, 2, 3, 4, 5].map(i => (
-                    <div key={i} className={`h-10 w-full rounded-lg ${i === 1 ? 'bg-blue-600/10 border border-blue-600/20' : 'hover:bg-slate-800/30'} flex items-center px-3 gap-3`}>
-                      <div className={`w-5 h-5 rounded ${i === 1 ? 'bg-blue-500' : 'bg-slate-700'}`} />
-                      <div className={`h-2 w-20 rounded-full ${i === 1 ? 'bg-blue-200' : 'bg-slate-600'}`} />
-                    </div>
-                  ))}
-                  <div className="mt-auto p-4 rounded-xl bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-indigo-500/20">
-                    <div className="h-2 w-full bg-slate-700 rounded-full mb-2" />
-                    <div className="h-2 w-2/3 bg-slate-700 rounded-full" />
-                  </div>
-                </div>
-
-                {/* Dashboard Area */}
-                <div className="flex-1 flex flex-col gap-6">
-                  {/* Header */}
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <div className="h-4 w-32 bg-slate-800 rounded-full mb-2" />
-                      <div className="h-8 w-64 bg-slate-700/50 rounded-lg" />
-                    </div>
-                    <div className="flex gap-3">
-                      <div className="h-9 w-24 bg-blue-600 rounded-lg shadow-lg shadow-blue-500/20" />
-                      <div className="h-9 w-9 bg-slate-800 rounded-lg border border-slate-700" />
-                    </div>
-                  </div>
-
-                  {/* KPI Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[
-                      { l: 'Total Revenue', v: '₹1,240,500', c: 'text-emerald-400', g: '+12%' },
-                      { l: 'Commission Payout', v: '₹142,300', c: 'text-blue-400', g: '+8%' },
-                      { l: 'Active Deals', v: '328', c: 'text-violet-400', g: '+5%' }
-                    ].map((idx, i) => (
-                      <div key={i} className="h-32 rounded-xl bg-slate-800/20 border border-slate-700/50 p-5 flex flex-col justify-between hover:border-slate-600 transition-colors cursor-default group/card">
-                        <div className="flex justify-between items-start">
-                          <div className="h-8 w-8 rounded-lg bg-slate-800 flex items-center justify-center group-hover/card:scale-110 transition-transform">
-                            <div className="w-4 h-4 rounded-full bg-slate-600" />
-                          </div>
-                          <span className="text-xs font-mono text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">{idx.g}</span>
-                        </div>
-                        <div>
-                          <div className="text-slate-400 text-sm mb-1">{idx.l}</div>
-                          <div className={`text-2xl font-bold ${idx.c} tracking-tight`}>{idx.v}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Big Chart */}
-                  <div className="flex-1 rounded-xl bg-slate-800/20 border border-slate-700/50 p-6 flex items-end relative overflow-hidden group/chart">
-                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-blue-500/5 to-transparent" />
-                    <div className="w-full flex justify-between items-end gap-2 h-full">
-                      {[35, 55, 40, 70, 50, 85, 60, 95, 75, 55, 80, 100].map((h, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ height: 0 }}
-                          whileInView={{ height: `${h}%` }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 0.8 + (i * 0.05), duration: 1.2, ease: "easeOut" }}
-                          className="flex-1 bg-gradient-to-t from-blue-600 to-indigo-500 opacity-80 rounded-t-sm group-hover/chart:opacity-100 transition-opacity"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Floating Elements (Visual Flair) */}
-            <motion.div
-              animate={{ y: [0, -20, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -right-12 top-20 p-4 bg-slate-800/90 backdrop-blur-xl border border-slate-600 rounded-2xl shadow-2xl hidden lg:block max-w-xs z-20"
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-emerald-400" />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-white">Target Reached</div>
-                  <div className="text-xs text-slate-400">Regional Sales Team</div>
-                </div>
-              </div>
-              <div className="h-2 w-full bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-500 w-[92%]" />
-              </div>
-            </motion.div>
-
-            <motion.div
-              animate={{ y: [0, 20, 0] }}
-              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute -left-12 bottom-40 p-4 bg-slate-800/90 backdrop-blur-xl border border-slate-600 rounded-2xl shadow-2xl hidden lg:block z-20"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full border-2 border-indigo-500 bg-slate-900" />
-                <div>
-                  <div className="text-lg font-bold text-white">₹14,250.00</div>
-                  <div className="text-xs text-emerald-400 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" /> Payout Approved
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Back Glow */}
-            <div className="absolute -inset-10 bg-gradient-to-r from-blue-600 to-violet-600 opacity-20 blur-3xl -z-10 rounded-[4rem]" />
-          </motion.div>
-
-          {/* Advanced Capabilities Strip */}
-          <div className="py-12 border-y border-slate-800/50 mb-32 bg-slate-900/20 backdrop-blur-sm">
-            <div className="max-w-7xl mx-auto px-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {[
-                  { title: 'AI Forecasting', icon: '✨', desc: 'Predict emerging trends' },
-                  { title: 'Gamification', icon: '🏆', desc: 'Boost rep engagement' },
-                  { title: 'Real-time Sync', icon: '⚡', desc: 'Instant data updates' },
-                  { title: 'Bank Grade', icon: '🔒', desc: 'SOC2 Type II Secure' }
-                ].map((item, i) => (
-                  <motion.div
-                    key={i}
-                    whileHover={{ y: -5, backgroundColor: "rgba(30, 41, 59, 0.8)" }}
-                    className="p-4 rounded-xl border border-slate-800 bg-slate-900/40 flex items-center gap-4 cursor-default transition-colors group"
-                  >
-                    <div className="w-12 h-12 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                      {item.icon}
-                    </div>
-                    <div>
-                      <div className="font-bold text-white text-sm">{item.title}</div>
-                      <div className="text-xs text-slate-500 group-hover:text-indigo-400 transition-colors">{item.desc}</div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* "HOW IT WORKS" Section (Replaces Features) */}
-          <div id="how-it-works" className="mb-32 max-w-7xl mx-auto px-6">
-            <div className="text-center max-w-3xl mx-auto mb-24">
-              <motion.span
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                className="text-blue-400 font-semibold tracking-wide uppercase text-sm mb-4 block"
-              >
-                Simple Workflow
-              </motion.span>
-              <motion.h2
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                className="text-4xl md:text-5xl font-bold text-white mb-6"
-              >
-                From Policy to Payout in 4 Steps
-              </motion.h2>
-              <p className="text-slate-400 text-lg">
-                See how Sales Reward Engine unifies your entire incentive lifecycle.
+              <p className="text-lg md:text-xl text-slate-200 font-bold uppercase tracking-widest max-w-4xl mx-auto mb-16 leading-relaxed text-balance">
+                Design, execute, and scale the most complex commission architectures imaginable through an interface of absolute pure clarity.
               </p>
-            </div>
 
-            <div className="relative">
-              {/* Connecting Line (Desktop) */}
-              <div className="hidden lg:block absolute top-[120px] left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-blue-500/0 z-0" />
+              {/* --- ELEGANT CTAS --- */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-12 w-full max-w-4xl mx-auto">
 
-              <motion.div
-                variants={staggerContainer}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10"
-              >
-                {workflowSteps.map((step, index) => (
-                  <motion.div
-                    key={step.id}
-                    variants={fadeInUp}
-                    whileHover={{ y: -10 }}
-                    className="relative group"
-                  >
-                    <div className={`p-8 rounded-2xl bg-slate-900/60 backdrop-blur-sm border ${step.border} hover:bg-slate-800/60 transition-colors h-full flex flex-col items-center text-center shadow-xl`}>
-                      {/* Step Number Badge */}
-                      <div className="absolute top-4 right-4 text-xs font-bold text-slate-600 bg-slate-800 px-2 py-1 rounded-md border border-slate-700">
-                        STEP 0{step.id}
-                      </div>
-
-                      <div className={`w-20 h-20 rounded-2xl ${step.bg} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-glow`}>
-                        <step.icon className={`w-10 h-10 ${step.color}`} />
-                      </div>
-
-                      <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                      <p className="text-slate-400 text-sm leading-relaxed">
-                        {step.description}
-                      </p>
-                    </div>
-
-                    {/* Connection Dot (Desktop) */}
-                    <div className="hidden lg:block absolute left-1/2 -top-[21px] -translate-x-1/2 w-4 h-4 bg-[#020617] border-2 border-slate-700 rounded-full z-20 group-hover:border-blue-500 group-hover:scale-125 transition-all" />
-                  </motion.div>
-                ))}
-              </motion.div>
-            </div>
-          </div>
-
-          {/* Powerful Features Grid (Replaces Integrations) */}
-          <div className="py-24 border-y border-slate-800/30 bg-slate-900/10 mb-32 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
-
-            <div className="max-w-7xl mx-auto px-6">
-              <div className="text-center mb-16">
-                <h3 className="text-3xl font-bold text-white mb-4">Complete Visibility & Control</h3>
-                <p className="text-slate-400 max-w-2xl mx-auto">Everything you need to manage complex incentives at scale.</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {[
-                  {
-                    title: 'Smart Auditing',
-                    icon: Shield,
-                    desc: 'Full traceability of every commission calculation with granular logs.',
-                    color: 'text-emerald-400',
-                    badge: 'Compliant'
-                  },
-                  {
-                    title: 'Dynamic Tiers',
-                    icon: BarChart3,
-                    desc: 'Adjust commission rates automatically based on live performance.',
-                    color: 'text-blue-400',
-                    badge: 'Automated'
-                  },
-                  {
-                    title: 'Live Leaderboards',
-                    icon: Trophy,
-                    desc: 'Motivate teams with real-time rankings and achievement tracking.',
-                    color: 'text-amber-400',
-                    badge: 'Engagement'
-                  },
-                  {
-                    title: 'Mobile Access',
-                    icon: Smartphone,
-                    desc: 'Reps can check their earnings and targets from anywhere, anytime.',
-                    color: 'text-violet-400',
-                    badge: 'Anywhere'
-                  }
-                ].map((feature, i) => (
-                  <motion.div
-                    key={i}
-                    whileHover={{ y: -5 }}
-                    className="group relative p-6 rounded-2xl bg-slate-900/50 border border-slate-800 hover:border-slate-700 transition-all hover:shadow-xl hover:shadow-indigo-500/10"
-                  >
-                    <div className="absolute top-4 right-4 text-[10px] font-bold tracking-wider uppercase bg-slate-800 text-slate-400 px-2 py-1 rounded-md border border-slate-700/50">
-                      {feature.badge}
-                    </div>
-
-                    <div className={`w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform ${feature.color}`}>
-                      <feature.icon className="w-6 h-6" />
-                    </div>
-
-                    <h4 className="text-lg font-bold text-white mb-2">{feature.title}</h4>
-                    <p className="text-slate-400 text-sm leading-relaxed mb-4">
-                      {feature.desc}
-                    </p>
-
-                    <div className="mt-auto pt-4 border-t border-slate-800/50 flex items-center justify-between group/link cursor-pointer">
-                      <span className="text-xs font-semibold text-indigo-400 group-hover/link:text-indigo-300 transition-colors uppercase tracking-wider">
-                        Explore Feature
-                      </span>
-                      <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center group-hover/link:bg-indigo-500 group-hover/link:text-white transition-all duration-300">
-                        <ArrowRight className="w-4 h-4 transform group-hover/link:-rotate-45 transition-transform" />
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* CTA Section */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="relative rounded-[3rem] overflow-hidden bg-gradient-to-br from-blue-900 to-indigo-900 max-w-7xl mx-auto text-center px-6 py-24 mb-20"
-          >
-            {/* Decorative Circles */}
-            <div className="absolute top-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-            <div className="absolute bottom-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl translate-x-1/4 translate-y-1/4" />
-
-            <div className="relative z-10 max-w-3xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight">
-                Ready to modernize your incentive program?
-              </h2>
-              <p className="text-xl text-blue-100 mb-10 leading-relaxed">
-                Join forward-thinking sales teams who have switched to Sales Reward Engine for transparency and speed.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                {/* 1. Get Started (Vibrant) */}
                 <button
                   onClick={handleGetStarted}
-                  className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg shadow-xl hover:bg-blue-50 transition-colors transform hover:-translate-y-1"
+                  className="btn-vibrant px-8 py-4 group min-w-[200px]"
                 >
-                  Get Started for Free
+                  <Zap className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                  <span className="text-lg mt-0.5">Get Started</span>
                 </button>
-                <button className="px-8 py-4 bg-blue-800/50 text-white border border-blue-400/30 rounded-xl font-bold text-lg hover:bg-blue-800 transition-colors">
-                  Talk to Sales
+
+                {/* 2. Sign In (Glass) */}
+                <button
+                  onClick={handleSignIn}
+                  className="btn-glass-outline px-8 py-4 group min-w-[200px]"
+                >
+                  <Lock className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                  <span className="text-lg mt-0.5">Sign In</span>
                 </button>
+
+                {/* 3. How to Use (Glass) */}
+                <button
+                  onClick={() => setGuideOpen(true)}
+                  className="btn-glass-outline px-8 py-4 group min-w-[200px]"
+                >
+                  <PlayCircle className="w-6 h-6 group-hover:scale-110 transition-transform text-cyan-400" />
+                  <span className="text-lg mt-0.5 text-cyan-400">How It Works</span>
+                </button>
+
               </div>
-              <p className="mt-8 text-sm text-blue-200">
-                No credit card required. 14-day free trial on Pro plans.
-              </p>
-            </div>
-          </motion.div>
-        </div>
+            </motion.div>
+          </TiltCard>
+        </motion.section>
+
+        {/* --- MASSIVELY EXPANDED ADVANCED FEATURES SECTION --- */}
+        <FeaturesSection />
+
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800/50 bg-[#020617] pt-20 pb-12">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-12 mb-16">
-            <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold text-white">Sales Reward Engine</span>
-              </div>
-              <p className="text-slate-400 max-w-sm mb-6">
-                The complete solution for modern sales incentive management. Accurate, transparent, and scalable.
-              </p>
-              <div className="flex gap-4">
-                {['Twitter', 'LinkedIn', 'GitHub'].map(social => (
-                  <a key={social} href="#" className="w-10 h-10 rounded-full border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
-                    <span className="sr-only">{social}</span>
-                    <Globe className="w-4 h-4" />
-                  </a>
-                ))}
-              </div>
-            </div>
+      <ElegantGuide isOpen={guideOpen} onClose={() => setGuideOpen(false)} />
 
-            <div>
-              <h4 className="text-white font-semibold mb-6">Product</h4>
-              <ul className="space-y-4">
-                {['Features', 'Integrations', 'Pricing', 'Security', 'Roadmap'].map(item => (
-                  <li key={item}>
-                    <a href="#" className="text-slate-400 hover:text-indigo-400 transition-colors text-sm">{item}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-semibold mb-6">Company</h4>
-              <ul className="space-y-4">
-                {['About Us', 'Careers', 'Blog', 'Contact', 'Legal'].map(item => (
-                  <li key={item}>
-                    <a href="#" className="text-slate-400 hover:text-indigo-400 transition-colors text-sm">{item}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      {/* --- FOOTER --- */}
+      <footer className="py-20 border-t border-white/10 relative z-30 bg-white/[0.02] backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-10">
+          <div className="flex items-center gap-6">
+            <AppIcon size="w-10 h-10" opacity="1" />
+            <span className="text-2xl font-black tracking-widest text-slate-300 uppercase">Sales Reward Engine</span>
           </div>
-
-          <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-slate-500 text-sm">
-              &copy; {new Date().getFullYear()} Sales Reward Engine. All rights reserved.
-            </div>
-            <div className="flex gap-8 text-sm text-slate-500">
-              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-            </div>
-          </div>
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">
+            Designed for absolute performance.
+          </p>
         </div>
       </footer>
     </div>
