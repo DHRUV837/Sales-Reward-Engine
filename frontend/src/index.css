@@ -63,6 +63,39 @@
     @apply w-full px-4 py-3 bg-surface-1 border border-border-strong rounded-xl text-text-primary placeholder-text-muted outline-none transition-all duration-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/50;
   }
 
+  /* Core Buttons */
+  .btn-primary {
+    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-white transition-all duration-300;
+    background: linear-gradient(135deg, var(--aurora-1), var(--aurora-2));
+    background-size: 200% auto;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background-position: right center;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px -5px var(--aurora-1);
+  }
+
+  .btn-primary:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all duration-300;
+    background-color: var(--surface-2);
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background-color: var(--surface-3);
+    border-color: var(--text-muted);
+  }
+
+  .btn-secondary:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
   /* Premium Hyper-Glass Effect */
   .hyper-glass {
     @apply relative backdrop-blur-[40px] rounded-3xl overflow-hidden transition-colors duration-300;
