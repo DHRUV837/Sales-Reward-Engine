@@ -142,14 +142,14 @@ const IncentiveSimulator = () => {
                 <div>
                   <label className="block text-sm font-bold text-text-secondary mb-2">Deal Type</label>
                   <select
-                    className="input-modern w-full"
+                    className="input-modern w-full bg-surface-1 text-text-primary border-border-strong"
                     value={dealType}
                     onChange={(e) => setDealType(e.target.value)}
                   >
-                    <option value="NEW_BUSINESS">🆕 New Business</option>
-                    <option value="RENEWAL">🔄 Renewal</option>
-                    <option value="UPSELL">📈 Upsell</option>
-                    <option value="CROSS_SELL">🔀 Cross-sell</option>
+                    <option value="NEW_BUSINESS" className="bg-surface-1 text-text-primary">🆕 New Business</option>
+                    <option value="RENEWAL" className="bg-surface-1 text-text-primary">🔄 Renewal</option>
+                    <option value="UPSELL" className="bg-surface-1 text-text-primary">📈 Upsell</option>
+                    <option value="CROSS_SELL" className="bg-surface-1 text-text-primary">🔀 Cross-sell</option>
                   </select>
                 </div>
                 <div>
@@ -175,13 +175,13 @@ const IncentiveSimulator = () => {
                 <div className="bg-gradient-to-r from-surface-2 to-surface-1 p-5 rounded-xl border border-border-subtle">
                   <label className="block text-sm font-bold text-text-secondary mb-3">Active Incentive Policy *</label>
                   <select
-                    className="input-modern w-full mb-4"
+                    className="input-modern w-full mb-4 bg-surface-1 text-text-primary border-border-strong"
                     value={selectedPolicyId}
                     onChange={handlePolicyChange}
                   >
-                    <option value="">-- Select Active Policy --</option>
+                    <option value="" className="bg-surface-1 text-text-primary">-- Select Active Policy --</option>
                     {policies.map(p => (
-                      <option key={p.id} value={p.id}>
+                      <option key={p.id} value={p.id} className="bg-surface-1 text-text-primary">
                         {p.title} - {p.commissionRate || p.rate}%
                       </option>
                     ))}
