@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import api, { API_URL } from "../../api";
+import { authApi } from "../../api";
+import { useAuth } from "../../context/AuthContext";
 import AdminLayout from "../../layouts/AdminLayout";
 import PageHeader from "../../components/common/PageHeader";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +10,7 @@ const AdminIncentivePolicy = () => {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [editingPolicy, setEditingPolicy] = useState(null);
+    const { auth } = useAuth();
 
     const [formData, setFormData] = useState({
         title: "",
@@ -28,7 +30,9 @@ const AdminIncentivePolicy = () => {
     const fetchPolicies = async () => {
         setLoading(true);
         try {
-            const response = await api.get("/api/policy/admin?type=INCENTIVE");
+            const response = await authApi.get("/api/policy/admin?type=INCENTIVE", {
+                params: { requestorId: auth?.user?.id }
+            });
             setPolicies(response.data);
         } catch (error) {
             console.error("Error fetching incentive policies:", error);
@@ -66,12 +70,13 @@ const AdminIncentivePolicy = () => {
             const payload = {
                 ...formData,
                 type: 'INCENTIVE',
+                createdBy: auth?.user?.id
             };
             if (editingPolicy) {
                 payload.id = editingPolicy.id;
             }
 
-            await api.post("/api/policy", payload);
+            await authApi.post("/api/policy", payload);
             setShowForm(false);
             resetForm();
             fetchPolicies();
@@ -85,7 +90,7 @@ const AdminIncentivePolicy = () => {
         if (!confirm("Are you sure you want to delete this incentive policy?")) return;
 
         try {
-            await api.delete(`/api/policy/${id}`);
+            await authApi.delete(`/api/policy/${id}`);
             fetchPolicies();
         } catch (error) {
             console.error("Error deleting policy:", error);

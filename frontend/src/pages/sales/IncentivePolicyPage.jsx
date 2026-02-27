@@ -1,6 +1,6 @@
 import SalesLayout from "../../layouts/SalesLayout";
 import { useState, useEffect } from "react";
-import api, { API_URL } from "../../api";
+import { authApi } from "../../api";
 import { useAuth } from "../../context/AuthContext";
 import PageHeader from "../../components/common/PageHeader";
 
@@ -20,7 +20,9 @@ const IncentivePolicyPage = () => {
 
   const fetchPolicies = async () => {
     try {
-      const res = await api.get("/api/policy?type=INCENTIVE");
+      const res = await authApi.get("/api/policy?type=INCENTIVE", {
+        params: { requestorId: auth?.user?.id }
+      });
       setPolicies(res.data);
       setLoading(false);
     } catch (err) {
@@ -32,17 +34,18 @@ const IncentivePolicyPage = () => {
   const handleAddPolicy = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/api/policy", {
+      await authApi.post("/api/policy", {
         ...newPolicy,
         displayOrder: policies.length + 1,
-        type: "INCENTIVE"
+        type: "INCENTIVE",
+        createdBy: auth?.user?.id
       });
 
       // Onboarding Progress: Mark 'First Rule' as complete
       try {
         const userId = localStorage.getItem("userId");
         if (userId) {
-          await api.post("/api/onboarding/progress/update", {
+          await authApi.post("/api/onboarding/progress/update", {
             userId: userId,
             task: "firstRule"
           });
@@ -62,7 +65,7 @@ const IncentivePolicyPage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this policy rule?")) return;
     try {
-      await api.delete(`/api/policy/${id}`);
+      await authApi.delete(`/api/policy/${id}`);
       fetchPolicies();
     } catch (err) {
       alert("Failed to delete policy");

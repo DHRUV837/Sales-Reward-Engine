@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AdminLayout from "../../layouts/AdminLayout";
-import api from "../../api";
+import { authApi } from "../../api";
+import { useAuth } from "../../context/AuthContext";
 import PageHeader from "../../components/common/PageHeader";
 
 const AdminPolicy = () => {
@@ -9,6 +10,7 @@ const AdminPolicy = () => {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [editingPolicy, setEditingPolicy] = useState(null);
+    const { auth } = useAuth();
 
     // Form State
     const [formData, setFormData] = useState({
@@ -20,7 +22,9 @@ const AdminPolicy = () => {
     const fetchPolicies = async () => {
         setLoading(true);
         try {
-            const res = await api.get("/api/policy/admin?type=COMPANY");
+            const res = await authApi.get("/api/policy/admin?type=COMPANY", {
+                params: { requestorId: auth?.user?.id }
+            });
             setPolicies(res.data);
         } catch (err) {
             console.error("Failed to fetch policies:", err);
@@ -67,12 +71,13 @@ const AdminPolicy = () => {
             const payload = {
                 ...formData,
                 type: 'COMPANY',
+                createdBy: auth?.user?.id
             };
             if (editingPolicy) {
                 payload.id = editingPolicy.id;
             }
 
-            await api.post("/api/policy", payload);
+            await authApi.post("/api/policy", payload);
             setShowForm(false);
             fetchPolicies();
         } catch (err) {
@@ -84,7 +89,7 @@ const AdminPolicy = () => {
     const handleDelete = async (id) => {
         if (!confirm("Are you sure you want to delete this policy document?")) return;
         try {
-            await api.delete(`/api/policy/${id}`);
+            await authApi.delete(`/api/policy/${id}`);
             fetchPolicies();
             setShowForm(false);
         } catch (err) {

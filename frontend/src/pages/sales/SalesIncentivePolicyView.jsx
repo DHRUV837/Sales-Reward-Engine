@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import api from "../../api";
+import { authApi } from "../../api";
+import { useAuth } from "../../context/AuthContext";
 import SalesLayout from "../../layouts/SalesLayout";
 import PageHeader from "../../components/common/PageHeader";
 
 const SalesIncentivePolicyView = () => {
     const [policies, setPolicies] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { auth } = useAuth();
 
     useEffect(() => {
         fetchPolicies();
@@ -14,7 +16,9 @@ const SalesIncentivePolicyView = () => {
     const fetchPolicies = async () => {
         setLoading(true);
         try {
-            const response = await api.get("/api/policy?type=INCENTIVE");
+            const response = await authApi.get("/api/policy?type=INCENTIVE", {
+                params: { requestorId: auth?.user?.id }
+            });
             console.log("Incentive Policies for Sales:", response.data);
             setPolicies(response.data);
         } catch (error) {
