@@ -20,12 +20,12 @@
 
 ## 🌐 Live Demo
 
-🚀 **[Try Sales Reward Engine Live →](#)** *(Deployment Links Coming Soon)*
+🚀 **[Try Sales Reward Engine Live →](https://sales-reward-engine.vercel.app)**
 
 | Component | URL |
 | :--- | :--- |
-| 🖥️ **Frontend** | `sales-reward-engine.vercel.app` *(Pending)* |
-| ⚙️ **Backend API** | `sales-reward-api.onrender.com` *(Pending)* |
+| 🖥️ **Frontend** | [sales-reward-engine.vercel.app](https://sales-reward-engine.vercel.app) |
+| ⚙️ **Backend API** | [sales-reward-api.onrender.com](https://sales-reward-api.onrender.com) |
 | 🗄️ **Database** | AWS RDS PostgreSQL |
 
 > ☕ **First time visiting?** Our backend server takes a power nap when no one's around! 
