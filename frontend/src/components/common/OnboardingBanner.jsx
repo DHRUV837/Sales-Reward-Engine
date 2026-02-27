@@ -9,17 +9,17 @@ const OnboardingBanner = () => {
     if (auth?.onboardingCompleted !== false) return null;
 
     return (
-        <div className="mb-6 rounded-xl bg-gradient-to-r from-indigo-900/50 to-blue-900/50 border border-indigo-500/30 p-4 md:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden group">
+        <div className="mb-6 rounded-xl bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/50 dark:to-blue-900/50 border border-indigo-200 dark:border-indigo-500/30 p-4 md:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden group">
             {/* Background Glow */}
             <div className="absolute inset-0 bg-indigo-500/5 group-hover:bg-indigo-500/10 transition-colors duration-500" />
 
             <div className="flex items-start gap-4 z-10">
-                <div className="p-3 rounded-lg bg-indigo-500/20 text-indigo-400">
+                <div className="p-3 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400">
                     <Rocket className="w-6 h-6" />
                 </div>
                 <div>
-                    <h3 className="font-bold text-white text-lg">Set up your workspace</h3>
-                    <p className="text-slate-400 text-sm mt-1">
+                    <h3 className="font-bold text-indigo-900 dark:text-white text-lg">Set up your workspace</h3>
+                    <p className="text-indigo-600/80 dark:text-slate-400 text-sm mt-1">
                         Complete your organization profile and preferences to unlock full AI capabilities.
                     </p>
                 </div>
