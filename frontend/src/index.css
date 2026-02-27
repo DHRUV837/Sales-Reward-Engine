@@ -59,6 +59,10 @@
     @apply w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all duration-300;
   }
 
+  .input-modern {
+    @apply w-full px-4 py-3 bg-surface-1 border border-border-strong rounded-xl text-text-primary placeholder-text-muted outline-none transition-all duration-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/50;
+  }
+
   /* Premium Hyper-Glass Effect */
   .hyper-glass {
     @apply relative backdrop-blur-[40px] rounded-3xl overflow-hidden transition-colors duration-300;
