@@ -151,12 +151,10 @@ const SalesPerformancePage = () => {
 
                 {/* Main Charts Area */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 card-modern p-6">
-                        <h3 className="font-bold mb-4">Incentive Growth Trend</h3>
+                    <div className="lg:col-span-2">
                         <PerformanceTrend />
                     </div>
-                    <div className="card-modern p-6">
-                        <h3 className="font-bold mb-4">Earnings Breakdown</h3>
+                    <div>
                         <EarningsBreakdown />
                     </div>
                 </div>
