@@ -15,7 +15,7 @@ public class InvitationController {
     private final org.example.salesincentivesystem.repository.UserRepository userRepository;
     private final org.example.salesincentivesystem.service.EmailService emailService;
 
-    @Value("${FRONTEND_URL:http://localhost:5173}")
+    @Value("${FRONTEND_URL:https://sales-reward-engine.vercel.app}")
     private String frontendUrl;
 
     public InvitationController(InvitationService invitationService,

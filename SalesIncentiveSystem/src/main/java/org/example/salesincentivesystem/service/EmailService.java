@@ -17,7 +17,7 @@ public class EmailService {
     @Value("${SENDGRID_API_KEY:}")
     private String sendGridApiKey;
 
-    @Value("${FRONTEND_URL:http://localhost:5173}")
+    @Value("${FRONTEND_URL:https://sales-reward-engine.vercel.app}")
     private String frontendUrl;
 
     private static final String FROM_EMAIL = "teamsalesrewardengine@gmail.com";
