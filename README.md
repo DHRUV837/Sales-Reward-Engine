@@ -35,8 +35,8 @@
 
 | Role | Email | Password |
 | :--- | :--- | :--- |
-| 👨‍💼 **Global Admin** | `admin@test.com` | `password` |
-| 🧑‍💻 **Sales Executive** | `sales@test.com` | `password` |
+| 👨‍💼 **Global Admin** | `admin@test.com` | `admin123` |
+| 🧑‍💻 **Sales Executive** | `sales@test.com` | `sales123` |
 
 ---
 
