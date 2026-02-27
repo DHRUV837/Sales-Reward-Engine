@@ -89,7 +89,7 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#0f172a] font-inter text-slate-50 selection:bg-cyan-500/40 relative overflow-hidden">
+        <div className="dark min-h-screen flex items-center justify-center bg-[#0f172a] font-inter text-slate-50 selection:bg-cyan-500/40 relative overflow-hidden">
             <AuroraBackground />
 
             {/* Top Left Branding */}

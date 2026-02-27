@@ -323,7 +323,7 @@ const LandingPage = () => {
   const handleSignIn = () => navigate('/login');
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-slate-100 font-sans overflow-x-hidden relative selection:bg-cyan-500/40">
+    <div className="dark min-h-screen bg-[#0f172a] text-slate-100 font-sans overflow-x-hidden relative selection:bg-cyan-500/40">
 
       <AuroraBackground />
 

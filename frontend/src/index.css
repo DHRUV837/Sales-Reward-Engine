@@ -3,22 +3,52 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --bg-primary: #0f172a;
-    --text-primary: #f8fafc;
+
+  :root,
+  .light {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #f1f5f9;
+    --bg-tertiary: #e2e8f0;
+    --surface-1: #ffffff;
+    --surface-2: #f8fafc;
+    --surface-3: #f1f5f9;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --text-invert: #ffffff;
+    --border-subtle: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --glass-bg: rgba(255, 255, 255, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+
     /* Vibrant eye-pleasing palette */
     --aurora-1: #3b82f6;
-    /* Blue */
     --aurora-2: #8b5cf6;
-    /* Violet */
     --aurora-3: #ec4899;
-    /* Pink */
     --aurora-4: #06b6d4;
-    /* Cyan */
+  }
+
+  .dark {
+    --bg-primary: #0f172a;
+    --bg-secondary: #020617;
+    --bg-tertiary: #1e293b;
+    --surface-1: #0f172a;
+    --surface-2: #1e293b;
+    --surface-3: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-invert: #0f172a;
+    --border-subtle: #334155;
+    --border-strong: #475569;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.05);
   }
 
   body {
-    @apply font-sans antialiased text-slate-50 overflow-x-hidden;
+    @apply font-sans antialiased text-text-primary overflow-x-hidden transition-colors duration-300;
     background-color: var(--bg-primary);
   }
 }
@@ -27,11 +57,10 @@
 
   /* Premium Hyper-Glass Effect */
   .hyper-glass {
-    @apply relative bg-white/[0.03] backdrop-blur-[40px] border border-white/10 rounded-3xl overflow-hidden;
-    box-shadow:
-      0 4px 30px rgba(0, 0, 0, 0.1),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.1),
-      inset 0 0 20px rgba(255, 255, 255, 0.05);
+    @apply relative backdrop-blur-[40px] rounded-3xl overflow-hidden transition-colors duration-300;
+    background-color: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
   }
 
   /* Vibrant Glow Button */
