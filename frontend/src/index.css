@@ -55,6 +55,10 @@
 
 @layer components {
 
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all duration-300;
+  }
+
   /* Premium Hyper-Glass Effect */
   .hyper-glass {
     @apply relative backdrop-blur-[40px] rounded-3xl overflow-hidden transition-colors duration-300;

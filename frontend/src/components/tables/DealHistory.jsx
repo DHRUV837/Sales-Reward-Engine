@@ -131,11 +131,11 @@ const DealHistory = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="input-modern py-2 px-3 text-sm font-medium"
+              className="input-modern py-2 px-3 text-sm font-medium bg-surface-1 text-text-primary border-border-strong"
             >
-              <option value="date">📅 Date</option>
-              <option value="amount">💰 Amount</option>
-              <option value="incentive">💎 Incentive</option>
+              <option value="date" className="bg-surface-1 text-text-primary">📅 Date</option>
+              <option value="amount" className="bg-surface-1 text-text-primary">💰 Amount</option>
+              <option value="incentive" className="bg-surface-1 text-text-primary">💎 Incentive</option>
             </select>
             <button
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}

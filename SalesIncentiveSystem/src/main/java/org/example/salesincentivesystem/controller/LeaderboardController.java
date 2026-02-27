@@ -35,11 +35,9 @@ public class LeaderboardController {
                     .map(org.example.salesincentivesystem.entity.User::isAdminTypeGlobal)
                     .orElse(false);
 
-            if (!isGlobalAdmin && orgName == null) {
-                return java.util.Collections.emptyList();
-            }
-
             if (!isGlobalAdmin) {
+                // If no orgName is set, fallback to null (global) to avoid empty leaderboards
+                // for incomplete profiles
                 return leaderboardService.getLeaderboard(period, orgName);
             }
         }

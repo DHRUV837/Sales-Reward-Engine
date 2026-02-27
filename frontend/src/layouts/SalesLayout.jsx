@@ -13,7 +13,7 @@ const SalesLayout = ({ children }) => {
   return (
     <div className="flex min-h-screen bg-primary transition-colors duration-300 flex-col font-sans">
       {/* App Name at Top */}
-      <div className="w-full border-b border-border-subtle glass-panel py-4 px-8 z-20 sticky top-0">
+      <div className="w-full border-b border-border-subtle glass-panel py-4 px-8 relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <AppIcon size="w-10 h-10" />

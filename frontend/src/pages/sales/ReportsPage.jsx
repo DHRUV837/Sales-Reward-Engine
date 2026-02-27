@@ -130,7 +130,7 @@ const ReportsPage = () => {
                     className="w-full px-4 py-2 border border-border-strong rounded-lg bg-surface-2 text-text-primary focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   >
                     {monthNames.map((month, index) => (
-                      <option key={index} value={index}>{month}</option>
+                      <option key={index} value={index} className="bg-surface-1 text-text-primary">{month}</option>
                     ))}
                   </select>
                 </div>
@@ -142,7 +142,7 @@ const ReportsPage = () => {
                     className="w-full px-4 py-2 border border-border-strong rounded-lg bg-surface-2 text-text-primary focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   >
                     {years.map(year => (
-                      <option key={year} value={year}>{year}</option>
+                      <option key={year} value={year} className="bg-surface-1 text-text-primary">{year}</option>
                     ))}
                   </select>
                 </div>

@@ -205,7 +205,7 @@ const SalesReportsPage = () => {
                             <select
                                 value={reportType}
                                 onChange={(e) => setReportType(e.target.value)}
-                                className="input-modern w-full"
+                                className="input-modern w-full bg-surface-1 text-text-primary border-border-strong"
                             >
                                 <option value="Incentive">Incentive Statement</option>
                                 <option value="Deals">Deal History</option>
