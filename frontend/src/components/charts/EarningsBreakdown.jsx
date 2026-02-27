@@ -47,21 +47,21 @@ const EarningsBreakdown = () => {
     };
 
     return (
-        <div className="card-modern p-6 h-full flex flex-col justify-center">
-            <div className="mb-4">
+        <div className="card-modern p-6 h-full flex flex-col">
+            <div className="mb-2">
                 <h3 className="text-lg font-semibold text-text-primary">Earnings Breakdown</h3>
                 <p className="text-xs text-text-secondary">Incentive distribution by deal size</p>
             </div>
 
-            <div className="h-64 relative">
+            <div className="flex-1 w-full relative min-h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie
                             data={data}
                             cx="50%"
                             cy="50%"
-                            innerRadius={60}
-                            outerRadius={80}
+                            innerRadius="65%"
+                            outerRadius="85%"
                             paddingAngle={5}
                             dataKey="value"
                             stroke="none"
@@ -72,14 +72,14 @@ const EarningsBreakdown = () => {
                             ))}
                         </Pie>
                         <Tooltip content={<CustomTooltip />} />
-                        <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                        <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ paddingTop: "20px" }} />
                     </PieChart>
                 </ResponsiveContainer>
 
                 {/* Center Text */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[60%] text-center pointer-events-none">
-                    <p className="text-xs text-text-muted uppercase tracking-widest">Total</p>
-                    <p className="text-lg font-bold text-text-primary">
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none mt-[-18px]">
+                    <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-1">Total</p>
+                    <p className="text-2xl font-black text-text-primary">
                         ₹{totalEarnings.toLocaleString('en-IN', { notation: "compact", maximumFractionDigits: 1 })}
                     </p>
                 </div>
