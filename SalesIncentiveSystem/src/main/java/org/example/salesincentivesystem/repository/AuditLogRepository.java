@@ -10,7 +10,8 @@ import java.util.List;
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
 
         @Query("SELECT a FROM AuditLog a WHERE " +
-                        "(:orgName IS NULL OR a.organizationName = :orgName) AND " +
+                        "(:orgName IS NULL OR a.organizationName = :orgName OR (a.userId IS NOT NULL AND EXISTS (SELECT 1 FROM User u WHERE u.id = a.userId AND u.organizationName = :orgName))) AND "
+                        +
                         "(:action IS NULL OR LOWER(a.action) LIKE LOWER(CONCAT('%', :action, '%'))) AND " +
                         "(:email IS NULL OR LOWER(a.email) LIKE LOWER(CONCAT('%', :email, '%'))) AND " +
                         "(:startDate IS NULL OR a.timestamp >= :startDate) AND " +

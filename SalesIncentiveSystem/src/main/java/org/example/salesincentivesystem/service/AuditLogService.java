@@ -12,9 +12,12 @@ import java.util.List;
 public class AuditLogService {
 
     private final AuditLogRepository auditLogRepository;
+    private final org.example.salesincentivesystem.repository.UserRepository userRepository;
 
-    public AuditLogService(AuditLogRepository auditLogRepository) {
+    public AuditLogService(AuditLogRepository auditLogRepository,
+            org.example.salesincentivesystem.repository.UserRepository userRepository) {
         this.auditLogRepository = auditLogRepository;
+        this.userRepository = userRepository;
     }
 
     public void logAction(User actor, String action, String entityType, Long entityId, String details) {
@@ -35,9 +38,7 @@ public class AuditLogService {
         AuditLog log = new AuditLog(userId, email, action, entityType, entityId, details);
         // Attempt to find organization name if userId is provided
         if (userId != null) {
-            // This is a bit inefficient to do on every log, but necessary for the new
-            // schema.
-            // Ideally actor object should be passed.
+            userRepository.findById(userId).ifPresent(user -> log.setOrganizationName(user.getOrganizationName()));
         }
         auditLogRepository.save(log);
     }
@@ -50,11 +51,11 @@ public class AuditLogService {
     }
 
     public List<AuditLog> getAllLogs(String orgName) {
+        if (orgName != null) {
+            return auditLogRepository.searchLogs(orgName, null, null, null, null);
+        }
         org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort
                 .by(org.springframework.data.domain.Sort.Direction.DESC, "timestamp");
-        if (orgName != null) {
-            return auditLogRepository.findByOrganizationName(orgName, sort);
-        }
         return auditLogRepository.findAll(sort);
     }
 
