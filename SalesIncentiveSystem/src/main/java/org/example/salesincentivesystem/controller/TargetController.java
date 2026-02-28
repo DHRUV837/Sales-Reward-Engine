@@ -22,12 +22,28 @@ public class TargetController {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Get all targets/performance goals
-     */
     @GetMapping
-    public List<SalesPerformance> getAllTargets() {
-        return salesPerformanceRepository.findAll();
+    public org.springframework.http.ResponseEntity<?> getAllTargets(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Long requestorId) {
+        if (requestorId != null) {
+            org.example.salesincentivesystem.entity.User requestor = userRepository.findById(requestorId).orElse(null);
+            if (requestor != null) {
+                if (requestor.isAdminTypeGlobal()) {
+                    return org.springframework.http.ResponseEntity.ok(salesPerformanceRepository.findAll());
+                } else {
+                    String orgName = requestor.getOrganizationName();
+                    if (orgName == null) {
+                        return org.springframework.http.ResponseEntity.ok(java.util.Collections.emptyList());
+                    }
+                    java.util.List<SalesPerformance> all = salesPerformanceRepository.findAll();
+                    java.util.List<SalesPerformance> filtered = all.stream()
+                            .filter(p -> p.getUser() != null && orgName.equals(p.getUser().getOrganizationName()))
+                            .collect(java.util.stream.Collectors.toList());
+                    return org.springframework.http.ResponseEntity.ok(filtered);
+                }
+            }
+        }
+        return org.springframework.http.ResponseEntity.ok(salesPerformanceRepository.findAll());
     }
 
     /**

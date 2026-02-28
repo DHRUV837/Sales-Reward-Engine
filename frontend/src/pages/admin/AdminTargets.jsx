@@ -1,6 +1,6 @@
 import SalesLayout from "../../layouts/SalesLayout";
 import { useEffect, useState } from "react";
-import api, { API_URL } from "../../api";
+import api, { authApi, API_URL } from "../../api";
 import { useAuth } from "../../context/AuthContext";
 import PageHeader from "../../components/common/PageHeader";
 import { Target, Plus, Edit2, Trash2, TrendingUp } from "lucide-react";
@@ -19,13 +19,17 @@ const AdminTargets = () => {
     });
 
     useEffect(() => {
-        fetchTargets();
-        fetchUsers();
-    }, []);
+        if (auth?.user?.id) {
+            fetchTargets();
+            fetchUsers();
+        }
+    }, [auth?.user?.id]);
 
     const fetchTargets = async () => {
         try {
-            const res = await api.get("/api/targets");
+            const res = await authApi.get("/api/targets", {
+                params: { requestorId: auth?.user?.id }
+            });
             setTargets(res.data);
             setLoading(false);
         } catch (err) {

@@ -23,6 +23,9 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
                         @Param("startDate") LocalDateTime startDate,
                         @Param("endDate") LocalDateTime endDate);
 
+        @Query("SELECT a FROM AuditLog a WHERE a.organizationName = :orgName OR (a.userId IS NOT NULL AND EXISTS (SELECT 1 FROM User u WHERE u.id = a.userId AND u.organizationName = :orgName)) ORDER BY a.timestamp DESC")
+        List<AuditLog> findAllByOrganizationNameWithFallback(@Param("orgName") String orgName);
+
         List<AuditLog> findByOrganizationName(String organizationName, org.springframework.data.domain.Sort sort);
 
         boolean existsByUserIdAndAction(Long userId, String action);

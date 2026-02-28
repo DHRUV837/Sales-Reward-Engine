@@ -52,7 +52,7 @@ public class AuditLogService {
 
     public List<AuditLog> getAllLogs(String orgName) {
         if (orgName != null) {
-            return auditLogRepository.searchLogs(orgName, null, null, null, null);
+            return auditLogRepository.findAllByOrganizationNameWithFallback(orgName);
         }
         org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort
                 .by(org.springframework.data.domain.Sort.Direction.DESC, "timestamp");
