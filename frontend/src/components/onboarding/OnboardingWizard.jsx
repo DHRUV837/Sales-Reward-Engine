@@ -11,10 +11,12 @@ import InviteStep from "./steps/InviteStep";
 const OnboardingWizard = () => {
     const { auth, login } = useAuth();
 
-    // Simplified 2-Step Flow
+    const isAdmin = (auth?.user?.role || auth?.role) === "ADMIN";
+
+    // Exclude Invite Step for non-admins
     const steps = [
         { id: 'welcome', title: "Welcome", component: WelcomeStep },
-        { id: 'invite', title: "Invite Team", component: InviteStep }
+        ...(isAdmin ? [{ id: 'invite', title: "Invite Team", component: InviteStep }] : [])
     ];
 
     const [currentStep, setCurrentStep] = useState(0);

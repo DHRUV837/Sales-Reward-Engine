@@ -1,11 +1,13 @@
-import api from "../../api";
+import { authApi } from "../../api";
 import SalesLayout from "../../layouts/SalesLayout";
 import { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
 import PageHeader from "../../components/common/PageHeader";
 
 const AuditLogs = () => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { auth } = useAuth();
 
     // Filters
     const [filters, setFilters] = useState({
@@ -33,7 +35,11 @@ const AuditLogs = () => {
                 ? "/api/audit-logs/search"
                 : "/api/audit-logs";
 
-            const response = await api.get(endpoint, { params });
+            if (auth?.user?.id) {
+                params.requestorId = auth.user.id;
+            }
+
+            const response = await authApi.get(endpoint, { params });
             setLogs(response.data);
         } catch (error) {
             console.error("Failed to fetch audit logs", error);

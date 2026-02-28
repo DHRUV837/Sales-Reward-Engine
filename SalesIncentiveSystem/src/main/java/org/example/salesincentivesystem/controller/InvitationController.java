@@ -61,6 +61,11 @@ public class InvitationController {
                 try {
                     Long adminId = Long.parseLong(body.get("invitedBy").toString());
                     inviter = userRepository.findById(adminId).orElse(null);
+
+                    if (inviter != null && !"ADMIN".equals(inviter.getRole())) {
+                        return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN)
+                                .body(Map.of("error", "Only administrators can send invitations."));
+                    }
                 } catch (Exception ignored) {
                 }
             }
