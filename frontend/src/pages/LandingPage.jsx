@@ -62,9 +62,116 @@ const TiltCard = ({ children, className }) => {
   );
 };
 
-// --- VIBRANT & ADVANCED HOLOGRAPHIC GUIDE ---
+// --- VIBRANT & ADVANCED HOLOGRAPHIC ONBOARDING WIZARD ---
 const ElegantGuide = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 3;
+
+  // Reset step when opened
+  useEffect(() => {
+    if (isOpen) setCurrentStep(1);
+  }, [isOpen]);
+
+  const handleNext = () => {
+    if (currentStep < totalSteps) setCurrentStep(prev => prev + 1);
+    else {
+      onClose();
+      navigate('/register');
+    }
+  };
+
+  const steps = [
+    {
+      id: 1,
+      title: "Connect Your Data",
+      description: "Link your CRM to map sales quotas and tracking metrics instantly.",
+      icon: Database,
+      color: "from-blue-400 to-cyan-400",
+      bg: "bg-blue-500/10",
+      visual: (
+        <div className="flex flex-col gap-4 w-full max-w-sm mx-auto p-6 bg-white/5 rounded-2xl border border-white/10">
+          <div className="flex items-center gap-4 p-3 bg-white/5 rounded-xl border border-white/10">
+            <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+              <Database className="w-5 h-5 text-blue-400" />
+            </div>
+            <div className="flex-1">
+              <div className="h-2 w-24 bg-slate-600 rounded mb-2"></div>
+              <div className="h-2 w-16 bg-slate-700 rounded"></div>
+            </div>
+            <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <ShieldCheck className="w-3 h-3 text-emerald-400" />
+            </div>
+          </div>
+          <div className="h-2 w-full bg-slate-800 rounded overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }} 
+              animate={{ width: "100%" }} 
+              transition={{ duration: 2, repeat: Infinity }} 
+              className="h-full bg-gradient-to-r from-blue-500 to-cyan-400" 
+            />
+          </div>
+          <p className="text-xs text-center text-slate-400 font-mono">Syncing CRM Nodes...</p>
+        </div>
+      )
+    },
+    {
+      id: 2,
+      title: "Build Rules",
+      description: "Set commission tiers and multipliers using visual logic blocks.",
+      icon: Workflow,
+      color: "from-violet-400 to-fuchsia-400",
+      bg: "bg-violet-500/10",
+      visual: (
+        <div className="flex flex-col gap-3 w-full max-w-sm mx-auto p-6 bg-white/5 rounded-2xl border border-white/10">
+          <div className="p-3 bg-violet-500/10 rounded-xl border border-violet-500/20 flex justify-between items-center">
+            <span className="text-sm font-bold text-violet-300">If Deal > $10k</span>
+            <span className="text-xs px-2 py-1 bg-violet-500/20 rounded text-violet-200">Tier 1</span>
+          </div>
+          <div className="w-0.5 h-4 bg-slate-600 mx-auto"></div>
+          <div className="p-3 bg-fuchsia-500/10 rounded-xl border border-fuchsia-500/20 flex justify-between items-center">
+            <span className="text-sm font-bold text-fuchsia-300">Multiply &times; 1.5</span>
+            <Workflow className="w-4 h-4 text-fuchsia-400" />
+          </div>
+          <div className="w-0.5 h-4 bg-slate-600 mx-auto"></div>
+          <div className="p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 flex justify-center items-center">
+             <span className="text-sm font-bold text-emerald-300 transform transition-all hover:scale-105">Payout 15%</span>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 3,
+      title: "See It Work",
+      description: "Watch payouts calculate in real-time as reps close deals.",
+      icon: LineChart,
+      color: "from-emerald-400 to-teal-400",
+      bg: "bg-emerald-500/10",
+      visual: (
+        <div className="w-full max-w-sm mx-auto p-6 bg-white/5 rounded-2xl border border-white/10 flex flex-col items-center justify-center">
+          <div className="text-center mb-6">
+             <p className="text-slate-400 text-sm uppercase tracking-widest mb-2">Live Payout</p>
+             <motion.h4 
+               initial={{ opacity: 0, scale: 0.8 }}
+               animate={{ opacity: 1, scale: 1 }}
+               key={currentStep} // Re-animate if they switch back to this step
+               className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400"
+             >
+               $12,450
+             </motion.h4>
+          </div>
+          <div className="flex items-center gap-3 text-emerald-400 text-sm font-bold bg-emerald-500/10 px-4 py-2 rounded-full border border-emerald-500/20">
+            <Activity className="w-4 h-4 animate-pulse" />
+            +1.5x Multiplier Applied
+          </div>
+        </div>
+      )
+    }
+  ];
+
+  const currentStepData = steps[currentStep - 1];
+  const StepIcon = currentStepData.icon;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -72,104 +179,87 @@ const ElegantGuide = ({ isOpen, onClose }) => {
           initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
           animate={{ opacity: 1, backdropFilter: "blur(30px)" }}
           exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-          className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-8 bg-[#0f172a]/60"
+          className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-8 bg-[#0f172a]/80"
         >
           <motion.div
-            initial={{ scale: 0.9, y: 50, opacity: 0 }}
+            initial={{ scale: 0.95, y: 20, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
-            exit={{ scale: 0.9, y: 30, opacity: 0 }}
+            exit={{ scale: 0.95, y: 20, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="w-full max-w-[1300px] hyper-glass p-[2px] relative overflow-visible"
+            className="w-full max-w-4xl hyper-glass p-[1px] relative overflow-hidden rounded-[2rem]"
           >
             {/* Animated Gradient Border Wrap */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-pink-500 to-cyan-500 rounded-3xl opacity-50 blur-[2px] animate-pulse" />
+            <div className={`absolute inset-0 bg-gradient-to-r ${currentStepData.color} opacity-40 blur-sm transition-colors duration-500`} />
 
-            <div className="bg-[#0f172a]/95 backdrop-blur-3xl rounded-[23px] relative z-10 p-8 md:p-14 h-full flex flex-col overflow-hidden">
-
-              {/* Massive Ambient Internal Glow */}
-              <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-pink-500/20 to-violet-500/20 blur-[120px] rounded-full pointer-events-none animate-pulse" />
-              <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-tr from-cyan-400/20 to-blue-500/20 blur-[100px] rounded-full pointer-events-none" />
-
-              {/* Header */}
-              <div className="flex justify-between items-center mb-12 lg:mb-16 relative z-20">
-                <div className="flex items-center gap-6">
-                  <div className="relative group">
-                    <div className="absolute inset-0 bg-blue-500 blur-xl opacity-50 group-hover:opacity-100 transition-opacity" />
-                    <div className="p-4 bg-white/5 rounded-2xl border border-white/20 shadow-xl backdrop-blur-md relative z-10 flex items-center justify-center">
-                      <Zap className="w-10 h-10 text-cyan-400 animate-pulse" />
-                    </div>
+            <div className="bg-[#0f172a] rounded-[31px] relative z-10 flex flex-col md:flex-row min-h-[500px] overflow-hidden">
+              
+              {/* Left Side: Content & Action */}
+              <div className="flex-1 p-10 flex flex-col relative z-20 border-b md:border-b-0 md:border-r border-white/5">
+                {/* Header / Dismiss */}
+                <div className="flex justify-between items-center mb-8">
+                  {/* Progress Indicator */}
+                  <div className="flex items-center gap-2">
+                    {steps.map(s => (
+                      <div 
+                        key={s.id} 
+                        className={`h-1.5 rounded-full transition-all duration-300 ${s.id === currentStep ? 'w-8 bg-cyan-400' : s.id < currentStep ? 'w-4 bg-cyan-400/50' : 'w-4 bg-white/10'}`}
+                      />
+                    ))}
                   </div>
-                  <div>
-                    <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-widest text-glow-soft">
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Quick</span> Start
-                    </h2>
-                    <p className="text-cyan-300 font-mono text-sm uppercase tracking-widest mt-2 flex items-center gap-3">
-                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-                      App Initialization Sequence
-                    </p>
-                  </div>
+                  <button onClick={onClose} className="p-2 text-slate-400 hover:text-white transition-colors">
+                    <X className="w-6 h-6" />
+                  </button>
                 </div>
-                <button onClick={onClose} className="p-4 bg-white/5 hover:bg-white/20 hover:scale-110 rounded-full transition-all border border-white/10 group">
-                  <X className="w-8 h-8 text-slate-300 group-hover:text-white" />
-                </button>
-              </div>
 
-              {/* Four Steps Configuration */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 relative z-20">
-                {[
-                  {
-                    i: ShieldCheck, t: "1. Register Admin",
-                    d: "Create your secure admin profile and initialize your isolated workspace ecosystem.",
-                    color: "from-blue-400 to-cyan-400", bg: "bg-blue-500/10", borderHover: "group-hover:border-blue-400/50", iconColor: "text-blue-400"
-                  },
-                  {
-                    i: Database, t: "2. Connect Data",
-                    d: "Import sales quotas, establish metrics, and link foundational performance nodes.",
-                    color: "from-violet-400 to-fuchsia-400", bg: "bg-violet-500/10", borderHover: "group-hover:border-violet-400/50", iconColor: "text-violet-400"
-                  },
-                  {
-                    i: Workflow, t: "3. Build Logic",
-                    d: "Construct dynamic incentive rule-sets using our zero-code visual policy engine.",
-                    color: "from-pink-400 to-rose-400", bg: "bg-pink-500/10", borderHover: "group-hover:border-pink-400/50", iconColor: "text-pink-400"
-                  },
-                  {
-                    i: LineChart, t: "4. Run & Reward",
-                    d: "Activate the engine to instantly calculate commissions and drive revenue growth.",
-                    color: "from-emerald-400 to-teal-400", bg: "bg-emerald-500/10", borderHover: "group-hover:border-emerald-400/50", iconColor: "text-emerald-400"
-                  }
-                ].map((step, idx) => (
+                {/* Step Content */}
+                <div className="flex-1 flex flex-col justify-center">
                   <motion.div
-                    key={idx}
-                    initial={{ y: 30, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 + (idx * 0.15) }}
-                    className={`bg-white/5 p-6 rounded-[2rem] border border-white/10 transition-all duration-300 group hover:-translate-y-2 hover:bg-white/10 ${step.borderHover} relative overflow-hidden flex flex-col`}
+                    key={`content-${currentStep}`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3 }}
                   >
-                    {/* Hover Glow Background */}
-                    <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500 z-0" style={{ backgroundImage: `var(--tw-gradient-stops)` }} />
-
-                    <div className="relative z-10 flex-1 flex flex-col">
-                      <div className="flex items-center justify-between mb-6">
-                        <div className={`p-4 ${step.bg} rounded-2xl border border-white/10 group-hover:scale-110 transition-transform`}>
-                          <step.i className={`w-8 h-8 ${step.iconColor}`} />
-                        </div>
-                        <span className="text-4xl font-black text-white/5 group-hover:text-white/10 transition-colors">0{idx + 1}</span>
-                      </div>
-                      <h3 className={`text-xl font-black uppercase tracking-wider mb-4 text-transparent bg-clip-text bg-gradient-to-r ${step.color}`}>
-                        {step.t}
-                      </h3>
-                      <p className="text-slate-300 leading-relaxed font-bold text-sm flex-1">{step.d}</p>
+                    <div className={`w-14 h-14 rounded-2xl ${currentStepData.bg} flex items-center justify-center mb-6`}>
+                      <StepIcon className={`w-7 h-7 text-transparent bg-clip-text bg-gradient-to-r ${currentStepData.color}`} style={{ color: "inherit" }} />
                     </div>
+                    <h2 className="text-3xl font-black text-white mb-4">{currentStepData.title}</h2>
+                    <p className="text-slate-300 text-lg leading-relaxed">{currentStepData.description}</p>
                   </motion.div>
-                ))}
+                </div>
+
+                {/* Footer Action */}
+                <div className="mt-8 pt-6 border-t border-white/10">
+                  <button 
+                    onClick={handleNext} 
+                    className={`w-full py-4 rounded-xl font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
+                      currentStep === totalSteps 
+                        ? 'bg-gradient-to-r from-emerald-500 to-teal-400 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_50px_rgba(16,185,129,0.5)]' 
+                        : 'bg-white/10 text-white hover:bg-white/20'
+                    }`}
+                  >
+                    {currentStep === totalSteps ? "Setup My First Incentive" : "Continue"}
+                    {currentStep !== totalSteps && <span className="text-lg leading-none">&rarr;</span>}
+                  </button>
+                </div>
               </div>
 
-              {/* Footer Button */}
-              <div className="flex justify-center mt-auto relative z-20">
-                <button onClick={() => { onClose(); navigate('/register'); }} className="btn-vibrant px-16 py-6 text-xl tracking-[0.2em] shadow-[0_0_40px_rgba(59,130,246,0.3)] hover:shadow-[0_0_60px_rgba(59,130,246,0.5)]">
-                  Begin Free Initialization
-                </button>
+              {/* Right Side: Visual Preview */}
+              <div className="flex-1 bg-slate-900/50 relative overflow-hidden flex items-center justify-center p-10 hidden md:flex">
+                 {/* Decorative ambient glow based on step color */}
+                 <div className={`absolute inset-0 bg-gradient-to-br ${currentStepData.color} opacity-10 transition-colors duration-700`} />
+                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-white/[0.02] rounded-full blur-3xl" />
+                 
+                 <motion.div
+                    key={`visual-${currentStep}`}
+                    initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.4, type: "spring" }}
+                    className="w-full relative z-10"
+                 >
+                    {currentStepData.visual}
+                 </motion.div>
               </div>
+
             </div>
           </motion.div>
         </motion.div>
