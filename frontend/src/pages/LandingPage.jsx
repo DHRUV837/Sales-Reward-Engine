@@ -169,108 +169,90 @@ const ElegantGuide = ({ isOpen, onClose }) => {
     }
   ];
 
+  if (!isOpen) return null;
+
   const currentStepData = steps[currentStep - 1];
   const StepIcon = currentStepData.icon;
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-          animate={{ opacity: 1, backdropFilter: "blur(30px)" }}
-          exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-          className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-8 bg-[#0f172a]/80"
-        >
-          <motion.div
-            initial={{ scale: 0.95, y: 20, opacity: 0 }}
-            animate={{ scale: 1, y: 0, opacity: 1 }}
-            exit={{ scale: 0.95, y: 20, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="w-full max-w-4xl hyper-glass p-[1px] relative overflow-hidden rounded-[2rem]"
-          >
-            {/* Animated Gradient Border Wrap */}
-            <div className={`absolute inset-0 bg-gradient-to-r ${currentStepData.color} opacity-40 blur-sm transition-colors duration-500`} />
-
-            <div className="bg-[#0f172a] rounded-[31px] relative z-10 flex flex-col md:flex-row min-h-[500px] overflow-hidden">
-              
-              {/* Left Side: Content & Action */}
-              <div className="flex-1 p-10 flex flex-col relative z-20 border-b md:border-b-0 md:border-r border-white/5">
-                {/* Header / Dismiss */}
-                <div className="flex justify-between items-center mb-8">
-                  {/* Progress Indicator */}
-                  <div className="flex items-center gap-2">
-                    {steps.map(s => (
-                      <div 
-                        key={s.id} 
-                        className={`h-1.5 rounded-full transition-all duration-300 ${s.id === currentStep ? 'w-8 bg-cyan-400' : s.id < currentStep ? 'w-4 bg-cyan-400/50' : 'w-4 bg-white/10'}`}
-                      />
-                    ))}
-                  </div>
-                  <button onClick={onClose} className="p-2 text-slate-400 hover:text-white transition-colors">
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
-
-                {/* Step Content */}
-                <div className="flex-1 flex flex-col justify-center">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={`content-${currentStep}`}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <div className={`w-14 h-14 rounded-2xl ${currentStepData.bg} flex items-center justify-center mb-6`}>
-                        <StepIcon className={`w-7 h-7 text-transparent bg-clip-text bg-gradient-to-r ${currentStepData.color}`} style={{ color: "inherit" }} />
-                      </div>
-                      <h2 className="text-3xl font-black text-white mb-4">{currentStepData.title}</h2>
-                      <p className="text-slate-300 text-lg leading-relaxed">{currentStepData.description}</p>
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
-
-                {/* Footer Action */}
-                <div className="mt-8 pt-6 border-t border-white/10">
-                  <button 
-                    onClick={handleNext} 
-                    className={`w-full py-4 rounded-xl font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
-                      currentStep === totalSteps 
-                        ? 'bg-gradient-to-r from-emerald-500 to-teal-400 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_50px_rgba(16,185,129,0.5)]' 
-                        : 'bg-white/10 text-white hover:bg-white/20'
-                    }`}
-                  >
-                    {currentStep === totalSteps ? "Setup My First Incentive" : "Continue"}
-                    {currentStep !== totalSteps && <span className="text-lg leading-none">&rarr;</span>}
-                  </button>
-                </div>
-              </div>
-
-              {/* Right Side: Visual Preview */}
-              <div className="flex-1 bg-slate-900/50 relative overflow-hidden flex items-center justify-center p-10 hidden md:flex">
-                 {/* Decorative ambient glow based on step color */}
-                 <div className={`absolute inset-0 bg-gradient-to-br ${currentStepData.color} opacity-10 transition-colors duration-700`} />
-                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-white/[0.02] rounded-full blur-3xl" />
-                 
-                 <AnimatePresence mode="wait">
-                   <motion.div
-                      key={`visual-${currentStep}`}
-                      initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 1.05, y: -10 }}
-                      transition={{ duration: 0.4, type: "spring" }}
-                      className="w-full relative z-10"
-                   >
-                      {currentStepData.visual}
-                   </motion.div>
-                 </AnimatePresence>
-              </div>
-
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-8 bg-[#0f172a]/90 backdrop-blur-md">
+      <motion.div
+        initial={{ scale: 0.95, y: 20, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        exit={{ scale: 0.95, y: 20, opacity: 0 }}
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+        className="w-full max-w-5xl hyper-glass p-0 flex flex-col md:flex-row min-h-[500px] overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl relative"
+      >
+        
+        {/* Left Side: Content & Action */}
+        <div className="flex-1 p-10 md:p-14 flex flex-col relative z-20 bg-[#0f172a] border-b md:border-b-0 md:border-r border-white/5">
+          {/* Header / Dismiss */}
+          <div className="flex justify-between items-center mb-12">
+            {/* Progress Indicator */}
+            <div className="flex items-center gap-3">
+              {steps.map(s => (
+                <div 
+                  key={s.id} 
+                  className={`h-2 rounded-full transition-all duration-300 ${s.id === currentStep ? 'w-10 bg-cyan-400' : s.id < currentStep ? 'w-4 bg-cyan-400/50' : 'w-4 bg-white/10'}`}
+                />
+              ))}
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            <button onClick={onClose} className="p-2 text-slate-400 hover:text-white transition-colors bg-white/5 rounded-full">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Step Content */}
+          <div className="flex-1 flex flex-col justify-center min-h-[200px]">
+             <motion.div
+                key={`content-${currentStep}`}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className={`w-16 h-16 rounded-2xl ${currentStepData.bg} flex items-center justify-center mb-8 border border-white/5`}>
+                  <StepIcon className={`w-8 h-8 text-transparent bg-clip-text bg-gradient-to-r ${currentStepData.color}`} style={{ color: "inherit" }} />
+                </div>
+                <h2 className="text-4xl font-black text-white mb-4 tracking-tight">{currentStepData.title}</h2>
+                <p className="text-slate-300 text-lg leading-relaxed">{currentStepData.description}</p>
+             </motion.div>
+          </div>
+
+          {/* Footer Action */}
+          <div className="mt-10 pt-8 border-t border-white/10">
+            <button 
+              onClick={handleNext} 
+              className={`w-full py-5 rounded-xl font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-3 text-lg ${
+                currentStep === totalSteps 
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-400 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_50px_rgba(16,185,129,0.5)]' 
+                  : 'bg-white/10 text-white hover:bg-white/20'
+              }`}
+            >
+              {currentStep === totalSteps ? "Setup My First Incentive" : "Continue"}
+              {currentStep !== totalSteps && <span className="text-xl leading-none">&rarr;</span>}
+            </button>
+          </div>
+        </div>
+
+        {/* Right Side: Visual Preview */}
+        <div className="flex-1 bg-slate-900/80 relative overflow-hidden flex items-center justify-center p-10 hidden md:flex border-l border-white/5">
+            {/* Decorative ambient glow based on step color */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${currentStepData.color} opacity-10 transition-colors duration-700`} />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-white/[0.02] rounded-full blur-3xl" />
+            
+            <motion.div
+              key={`visual-${currentStep}`}
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.4, type: "spring" }}
+              className="w-full relative z-10"
+            >
+              {currentStepData.visual}
+            </motion.div>
+        </div>
+
+      </motion.div>
+    </div>
   );
 };
 
